@@ -44,8 +44,9 @@ int select(
       bind()  
         |
       listen()
-        |
-->    FD_ZERO()
+________|
+|       |
+|     FD_ZERO()
 |       | 
 |     FD_SET()
 |       |
@@ -53,8 +54,9 @@ int select(
 |       |
 |     FD_ISSET()
 |      |    |
-|      |N   |Y
-|______|  accept() -> client socket thread
-|____________|
+|      N    Y
+|______|    |
+|          accept() -> client socket thread
+|___________|
 ```
 
