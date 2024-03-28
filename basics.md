@@ -14,14 +14,15 @@ struct timeval
 - VSC <WinSock2.h>
 - GCC <sys/select.h>
 
-
 ```cpp
+//  reset fd_set
+FD_ZERO(fd_set *fdset); 
 //  assign socket (file descriptor) to fd_set
 FD_SET(int fd, fd_set *fdset);
-//  clear  socket (file descriptor) to fd_set
-FD_CLR(int fd, fd_set *fdset);
+//  check if socket has event
 FD_ISSET(int fd, fd_set *fdset);
-FD_ZERO(fd_set *fdset); 
+//  clear  socket (file descriptor) in fd_set
+FD_CLR(int fd, fd_set *fdset);
 ```
 
 ```cpp
@@ -36,5 +37,24 @@ int select(
   const timeval * timeout // [in] 
 );
 ```
-
+### server socket
+```
+      socket()
+        |
+      bind()  
+        |
+      listen()
+        |
+->    FD_ZERO()
+|       | 
+|     FD_SET()
+|       |
+|     select()
+|       |
+|     FD_ISSET()
+|      |    |
+|      |N   |Y
+|______|  accept() -> client socket thread
+|____________|
+```
 
