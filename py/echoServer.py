@@ -2,6 +2,7 @@
 #   simple TCP echo server
 #   ============================================================
 #   created by Manfred Sorgo
+#   see: https://realpython.com/python-sockets/
 
 from echoCommon import getSocketData
 from sys import argv
