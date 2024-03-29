@@ -1,3 +1,8 @@
+//  ============================================================
+//  Microsoft sample TCP echo server
+//  ============================================================
+//  see: https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
+
 #undef UNICODE
 
 #define WIN32_LEAN_AND_MEAN
