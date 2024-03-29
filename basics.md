@@ -1,5 +1,5 @@
-
-#### struct timeval
+# c++
+### struct timeval
 - VSC <WinSock2.h>
 - GCC <sys/time.h>
 
@@ -23,9 +23,7 @@ FD_SET(int fd, fd_set *fdset);
 FD_ISSET(int fd, fd_set *fdset);
 //  clear  socket (file descriptor) in fd_set
 FD_CLR(int fd, fd_set *fdset);
-```
 
-```cpp
 //  return: number of ready sockets
 //  0: timeout reached
 //  <0: error
@@ -60,3 +58,25 @@ ________|
 |___________|
 ```
 
+# python
+### ipv6 example
+```python
+>>> import socket
+>>> socket.getaddrinfo('www.python.org', 80, 0, 0, socket.SOL_TCP)
+[(2, 1, 6, '', ('82.94.164.162', 80)),
+ (10, 1, 6, '', ('2001:888:2000:d::a2', 80, 0, 0))]
+
+>>> ourSocket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
+>>> ourSocket.connect(('2001:888:2000:d::a2', 80, 0, 0))
+```
+### client example
+```python
+HOST = '127.0.0.1'
+PORT = 65432
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    s.sendall(b'Hello, world')
+    data = s.recv(1024)
+    print(f'Received {data}')
+```

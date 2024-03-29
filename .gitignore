@@ -30,3 +30,18 @@
 *.exe
 *.out
 *.app
+
+# python
+__pycache__
+
+# premake / build
+Makefile
+build
+bin
+obj
+lib
+exe
+.vs
+*.vcxproj.*
+*.vcxproj
+*.sln
