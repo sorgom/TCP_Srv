@@ -49,6 +49,7 @@ class EchoServer(object):
 
     def done(*any):
         print()
+        print('done')
         exit()
 
     def help(self):

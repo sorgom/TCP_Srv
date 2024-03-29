@@ -45,3 +45,5 @@ exe
 *.vcxproj.*
 *.vcxproj
 *.sln
+
+*.make

@@ -1,4 +1,5 @@
 # c++
+## sockets
 ### struct timeval
 - VSC <WinSock2.h>
 - GCC <sys/time.h>
@@ -58,6 +59,15 @@ ________|
 |___________|
 ```
 
+## threads
+### Start a thread with object methods
+```cpp
+#include <thread>
+std::thread t(&Class::method, this, arguments..);
+t.detach();
+```
+
+
 # python
 ### ipv6 example
 ```python
@@ -71,12 +81,14 @@ ________|
 ```
 ### client example
 ```python
-HOST = '127.0.0.1'
-PORT = 65432
 import socket
+
+HOST = '127.0.0.1'
+PORT = 8001
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     s.sendall(b'Hello, world')
     data = s.recv(1024)
-    print(f'Received {data}')
+    print(f'received {data}')
 ```
