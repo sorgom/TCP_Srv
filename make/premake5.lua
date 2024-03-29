@@ -18,6 +18,8 @@ includesBase = { '../include' }
 --  ============================================================
 buildOptsVS = { '/std:c++17 /W4' }
 
+dummy = { '../sample/dummy.cpp' }
+
 --  ============================================================
 --  > TCP_Srv_Base library
 --  ->  VS: lib/TCP_Srv_Base.lib
@@ -73,16 +75,41 @@ workspace '12_MS_SamplSrv'
     configurations { 'ci' }
     language 'C++'
     objdir 'obj/%{prj.name}'
+    kind 'ConsoleApp'
 
-    filter { 'action:vs*' }
-        buildoptions { buildOptsVS }
-        targetdir 'exe'
-        files { '../sample/MS_SampleSrv.cpp' }
-        project '12_MS_SamplSrv'
-            kind 'ConsoleApp'
+    project '12_MS_SamplSrv'
 
-    -- filter { 'action:gmake*' }
-    --     buildoptions { buildOptsGcc }
-    --     targetdir 'bin'
+        filter { 'action:vs*' }
+            buildoptions { buildOptsVS }
+            targetdir 'exe'
+            files { '../sample/MS_SampleSrv.cpp' }
 
+        filter { 'action:gmake*' }
+            buildoptions { buildOptsGcc }
+            files { dummy }
+            targetdir 'bin'
+
+--  ============================================================
+--  > Tenouk sample: echo server
+--  VS only
+--  ->  exe/12_Tenouk_SampleSrv.exe
+--  ============================================================
+workspace '13_Tenouk_SampleSrv'
+    configurations { 'ci' }
+    language 'C++'
+    objdir 'obj/%{prj.name}'
+    kind 'ConsoleApp'
+    includedirs { includesBase }
+
+    project '13_MS_SamplSrv'
+
+        filter { 'action:vs*' }
+            buildoptions { buildOptsVS }
+            targetdir 'exe'
+            files { '../sample/Tenouk_SampleSrv.cpp' }
+
+        filter { 'action:gmake*' }
+            buildoptions { buildOptsGcc }
+            files { dummy }
+            targetdir 'bin'
                         

@@ -4,9 +4,7 @@
 //  created by Manfred Sorgo
 
 //  header content
-#include <thread>
 #include <mutex>
-#include <iostream>
 
 class Test
 {
@@ -29,6 +27,8 @@ private:
 };
 
 //  source content
+#include <thread>
+#include <iostream>
 using std::cout;
 using std::endl;
 using std::this_thread::sleep_for;
