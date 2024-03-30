@@ -3,36 +3,47 @@
 #define TRACE_ON
 #include <TCP_Srv/TraceMacros.h>
 
+#ifdef _WIN32
+using tval = const timeval;
+#pragma comment(lib, "ws2_32")
+#else
+#include <arpa/inet.h>
+#include <unistd.h>
+#define closesocket close
+constexpr SOCKET INVALID_SOCKET = -1;
+using tval = timeval;
+#endif
+
 #include <thread>
 #include <ciso646>
+#include <stdlib.h> // atoi
 
 #include <iostream>
-using std::cout;
 using std::cerr;
 using std::endl;
 
-void TCP_Srv_Base::tm(SOCKET cs)
+void TCP_Srv_Base::tm(SOCKET clientSocket)
 {
     bool cont = true;
     while(cont)
     {
         fd_set cset;
         FD_ZERO(&cset);
-        FD_SET(cs, &cset);
-        tval tv {SELECT_SECONDS, SELECT_MICRO_SECONDS};
+        FD_SET(clientSocket, &cset);
+        tval tv = gettval();
         if (select(0, &cset, nullptr, nullptr, &tv) < 0)
         {
             TRACE("client select failed")
             cont = false;
         }
-        else if (FD_ISSET(cs, &cset))
+        else if (FD_ISSET(clientSocket, &cset))
         {
             Buffer buff;
-            size_t bytes = recv(cs, buff, READ_BUFFER_SIZE, 0);
+            size_t bytes = recv(clientSocket, buff, sizeof(Buffer), 0);
             if (bytes > 0)
             {
                 TRACE("client sent " << bytes << " bytes")
-                process(cs, buff, bytes);
+                process(clientSocket, buff, bytes);
             }
             else
             {
@@ -41,93 +52,98 @@ void TCP_Srv_Base::tm(SOCKET cs)
             }
         }
     }
-    closesocket(cs);
+    closesocket(clientSocket);
 }
 
-bool TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
+void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 {
     if (argc > 1)
     {
-        return run(static_cast<UINT16>(atoi(argv[1])));
+        run(static_cast<UINT16>(atoi(argv[1])));
     }
     else
     {
-        return run();
+        run();
     }
 }
 
-bool TCP_Srv_Base::run(const UINT16 port)
+void TCP_Srv_Base::run(const UINT16 port)
 {
     TRACE("run ...")
-    #ifdef _WIN32
+    bool cont = true;
+    SOCKET listenSocket = INVALID_SOCKET;
+
+#ifdef _WIN32
     // check for Windows Sockets version 2.2
     {
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
             cerr << "WSAStartup failed" << endl;
-            return cleanup;
+            cont = false;
         }
     }
-    #endif
-    mListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (mListenSocket == INVALID_SOCKET)
+#endif
+    if (cont)
     {
-        cerr << "socket failed" << endl;
-        return cleanup();
+        listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (listenSocket < 0)
+        {
+            cerr << "socket failed" << endl;
+            cont = false;
+        }
     }
-    sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);
-
-    if (bind(mListenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
+    if (cont)
     {
-        cerr << "bind failed: port " << port << endl;
-        return cleanup();
-    }
+        sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = INADDR_ANY;
+        addr.sin_port = htons(port);
 
-    if (listen(mListenSocket, SOMAXCONN) < 0)
+        if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
+        {
+            cerr << "bind failed: port " << port << endl;
+            cont = false;
+        }
+    }
+    if (cont and (listen(listenSocket, SOMAXCONN) < 0))
     {
         cerr << "listen failed" << endl;
-        return cleanup();
+        cont = false;
     }
 
-    bool cont = true;
     while (cont)
     {
         fd_set lset;
         FD_ZERO(&lset);
-        FD_SET(mListenSocket, &lset);
-        tval tv {SELECT_SECONDS, SELECT_MICRO_SECONDS};
+        FD_SET(listenSocket, &lset);
+        tval tv = gettval();
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
             cerr << "listen select failed" << endl;
             cont = false;
         }
-        else if (FD_ISSET(mListenSocket, &lset))
+        else if (FD_ISSET(listenSocket, &lset))
         {
-
+            SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
+            if (clientSocket < 0)
+            {
+                cerr << "accept failed" << endl;
+                cont = false;
+            }
+            else
+            {
+                std::thread t(&TCP_Srv_Base::tm, this, clientSocket);
+                t.detach();
+            }
         }
     }
-    
-
-    // for (int i = 0; i < 10; ++i)
-    // {
-    //     std::thread t(&TCP_Srv_Base::tm, this, i);
-    //     t.detach();
-    // }
-    return true;
-}
-
-bool TCP_Srv_Base::cleanup()
-{
-    if (mListenSocket != INVALID_SOCKET)
+    if (listenSocket != INVALID_SOCKET)
     {
-        closesocket(mListenSocket);
+        closesocket(listenSocket);
     }
 #ifdef _WIN32
     WSACleanup();
 #endif
-    return false;
 }
+
