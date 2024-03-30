@@ -11,18 +11,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-bool TCP_Srv_Base::cleanup()
-{
-    if (mListenSocket != INVALID_SOCKET)
-    {
-        closesocket(mListenSocket);
-    }
-#ifdef _WIN32
-    WSACleanup();
-#endif
-    return false;
-}
-
 void TCP_Srv_Base::tm(SOCKET cs)
 {
     bool cont = true;
@@ -111,22 +99,25 @@ bool TCP_Srv_Base::run(const UINT16 port)
         fd_set lset;
         FD_ZERO(&lset);
         FD_SET(mListenSocket, &lset);
+        tval tv {SELECT_SECONDS, SELECT_MICRO_SECONDS};
+        if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
-            tval tv {0, 100000};
-            if (ok and (select(0, &lset, nullptr, nullptr, &tv) < 0))
-            {
-                cout << "listen select failed" << endl;
-                ok = false;
-            }
+            cerr << "listen select failed" << endl;
+            cont = false;
+        }
+        else if (FD_ISSET(mListenSocket, &lset))
+        {
+
         }
     }
     
 
-    for (int i = 0; i < 10; ++i)
-    {
-        std::thread t(&TCP_Srv_Base::tm, this, i);
-        t.detach();
-    }
+    // for (int i = 0; i < 10; ++i)
+    // {
+    //     std::thread t(&TCP_Srv_Base::tm, this, i);
+    //     t.detach();
+    // }
+    return true;
 }
 
 bool TCP_Srv_Base::cleanup()
@@ -140,12 +131,3 @@ bool TCP_Srv_Base::cleanup()
 #endif
     return false;
 }
-
-
-void TCP_Srv_Base::stop() 
-{
-    cout << "stop" << endl; 
-    mRunning = false; 
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-}
-

@@ -9,20 +9,12 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32")
-using tval = const timeval;
 #else
-#include <arpa/inet.h>
-#include <sys/socket.h>  
-#include <unistd.h>
 using SOCKET = int;
 constexpr SOCKET INVALID_SOCKET = -1;
-#define closesocket close
-using tval = timeval;
 #endif
 
 #include <TCP_Srv/BaseTypes.h>
-#include <ciso646>
-#include <stdlib.h>
 
 class SampleSrv
 {
@@ -30,16 +22,42 @@ public:
     inline SampleSrv() = default;
     ~SampleSrv();
     bool init(UINT16 port = 8080);
-    inline bool init(const char* port) { return init(static_cast<UINT16>(atoi(port))); }
+    bool init(const INT32 argc, const CONST_C_STRING* const argv);
     bool run();
 private:
     SOCKET mListenSocket = INVALID_SOCKET;
     bool cleanup();
 };
 
+//  source content
+
+#ifdef _WIN32
+using tval = const timeval;
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>  
+#include <unistd.h>
+#define closesocket close
+using tval = timeval;
+#endif
+
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <stdlib.h> // atoi
+#include <ciso646>
+
+bool SampleSrv::init(const INT32 argc, const CONST_C_STRING* const argv)
+{
+    if (argc > 1)
+    {
+        return init(static_cast<UINT16>(atoi(argv[1])));
+    }
+    else
+    {
+        return init();
+    }
+}
 
 bool SampleSrv::init(const UINT16 port)
 {
@@ -163,10 +181,12 @@ SampleSrv::~SampleSrv()
 #endif
 }
 
-int main()
+//  runtime
+
+int main(const INT32 argc, const CONST_C_STRING* const argv)
 {
     SampleSrv srv;
-    if (not srv.init())
+    if (not srv.init(argc, argv))
     {
         cout << "init failed" << endl;
         return 1;
