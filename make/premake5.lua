@@ -7,14 +7,6 @@ includesBase = { '../include' }
 --  ============================================================
 --  VS setup
 --  warning level: 4 (high)
---  
---  suppressed warnings application:
---  -   4100 unreferenced formal parameter
---  -   4103 change of alignement with header inclusion
---      this is intended behaviour of packBegin.h / packEnd.h
---  additional suppressed warnings test code:
---  -   4127 suggested 'if constexpr' 
---      warning caused by CppUTest headers code
 --  ============================================================
 buildOptsVS = { '/std:c++17 /W4' }
 
@@ -33,6 +25,7 @@ workspace '01_TCP_Srv_Base'
     targetdir 'lib'
 
     filter { 'action:vs*' }
+        warnings 'high'
         buildoptions { buildOptsVS }
 
     filter { 'action:gmake*' }
@@ -54,6 +47,7 @@ workspace '11_SampleMethodTreads'
     objdir 'obj/%{prj.name}'
 
     filter { 'action:vs*' }
+        warnings 'high'
         buildoptions { buildOptsVS }
         targetdir 'exe'
 
@@ -62,7 +56,7 @@ workspace '11_SampleMethodTreads'
         linkoptions { '-pthread' }
         targetdir 'bin'
 
-    project '11_sampleMethodTreads'
+    project 'sampleMethodTreads'
         kind 'ConsoleApp'
         files { '../sample/MethodThreads.cpp' }
 
@@ -77,9 +71,10 @@ workspace '12_MS_SamplSrv'
     objdir 'obj/%{prj.name}'
     kind 'ConsoleApp'
 
-    project '12_MS_SamplSrv'
+    project 'MS_SamplSrv'
 
         filter { 'action:vs*' }
+            warnings 'high'
             buildoptions { buildOptsVS }
             targetdir 'exe'
             files { '../sample/MS_SampleSrv.cpp' }
@@ -91,8 +86,8 @@ workspace '12_MS_SamplSrv'
 
 --  ============================================================
 --  > Tenouk sample: echo server
---  VS only
---  ->  exe/12_Tenouk_SampleSrv.exe
+--  ->  gcc: bin/12_Tenouk_SampleSrv
+--  ->  VS: exe/12_Tenouk_SampleSrv.exe
 --  ============================================================
 workspace '13_Tenouk_SampleSrv'
     configurations { 'ci' }
@@ -100,16 +95,15 @@ workspace '13_Tenouk_SampleSrv'
     objdir 'obj/%{prj.name}'
     kind 'ConsoleApp'
     includedirs { includesBase }
+    files { '../sample/Tenouk_SampleSrv.cpp' }
 
-    project '13_MS_SamplSrv'
-
+    project 'Tenouk_SampleSrv'
         filter { 'action:vs*' }
+            warnings 'high'
             buildoptions { buildOptsVS }
             targetdir 'exe'
-            files { '../sample/Tenouk_SampleSrv.cpp' }
 
         filter { 'action:gmake*' }
             buildoptions { buildOptsGcc }
-            files { dummy }
             targetdir 'bin'
                         

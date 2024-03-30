@@ -24,7 +24,7 @@ class EchoServer(object):
         for sig in ('TERM', 'INT'):
             signal.signal(getattr(signal, 'SIG' + sig), lambda *any: self.done())
 
-        self.sock, self.addr, self.port, *x = getSocketData(*args)
+        [self.sock, self.addr, self.port, *x] = getSocketData(*args)
 
     def run(self):
         try:

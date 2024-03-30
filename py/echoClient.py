@@ -5,16 +5,21 @@
 
 from echoCommon import getSocketData
 from sys import argv
+from time import sleep
+from select import select
 
 def getEcho(*args):
-    s, addr, port, message = getSocketData(*args)
-    print(f'msg : "{message}"')
+    [s, addr, port, message, num, *x] = getSocketData(*args)
+    enc = message.encode()
     try:
         s.connect((addr, port))
-        s.sendall(message.encode())
-        data = s.recv(1024)
+        for n in range(num):
+            if n > 0: sleep(1)
+            print(f'send: "{message}"')
+            s.sendall(enc)
+            data = s.recv(1024)
+            print(f'recv: "{data.decode()}"')
         s.close()
-        print(f'recv: "{data.decode()}"')
     except Exception as e:
         print(e)
 

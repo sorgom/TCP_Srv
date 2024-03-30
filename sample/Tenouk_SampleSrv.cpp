@@ -9,10 +9,20 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32")
+using tval = const timeval;
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>  
+#include <unistd.h>
+using SOCKET = int;
+constexpr SOCKET INVALID_SOCKET = -1;
+#define closesocket close
+using tval = timeval;
 #endif
 
 #include <TCP_Srv/BaseTypes.h>
 #include <ciso646>
+#include <stdlib.h>
 
 class SampleSrv
 {
@@ -20,8 +30,8 @@ public:
     inline SampleSrv() = default;
     ~SampleSrv();
     bool init(UINT16 port = 8080);
+    inline bool init(const char* port) { return init(static_cast<UINT16>(atoi(port))); }
     bool run();
-    void stop();
 private:
     SOCKET mListenSocket = INVALID_SOCKET;
     bool cleanup();
@@ -54,9 +64,9 @@ bool SampleSrv::init(const UINT16 port)
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
 
-    if (bind(mListenSocket, (const sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
+    if (bind(mListenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
     {
-        cout << "bind failed" << endl;
+        cout << "bind failed, port: " << port << endl;
         return cleanup();
     }
 
@@ -65,11 +75,11 @@ bool SampleSrv::init(const UINT16 port)
 
 bool SampleSrv::cleanup()
 {
-#ifdef _WIN32
     if (mListenSocket != INVALID_SOCKET)
     {
         closesocket(mListenSocket);
     }
+#ifdef _WIN32
     WSACleanup();
 #endif
     return false;
@@ -79,7 +89,7 @@ bool SampleSrv::run()
 {
     cout << "run ..." << endl;
     bool ok = true;
-    if (listen(mListenSocket, SOMAXCONN) == SOCKET_ERROR)
+    if (listen(mListenSocket, SOMAXCONN) < 0)
     {
         cout << "listen failed" << endl;
         ok = false;
@@ -89,11 +99,13 @@ bool SampleSrv::run()
         fd_set lset;
         FD_ZERO(&lset);
         FD_SET(mListenSocket, &lset);
-        const timeval tv {0, 100000};
-        if (ok and (select(0, &lset, nullptr, nullptr, &tv) == SOCKET_ERROR))
         {
-            cout << "listen select failed" << endl;
-            ok = false;
+            tval tv {0, 100000};
+            if (ok and (select(0, &lset, nullptr, nullptr, &tv) < 0))
+            {
+                cout << "listen select failed" << endl;
+                ok = false;
+            }
         }
         if (ok and FD_ISSET(mListenSocket, &lset))
         {
@@ -111,8 +123,13 @@ bool SampleSrv::run()
                     fd_set cset;
                     FD_ZERO(&cset);
                     FD_SET(clientSocket, &cset);
-                    select(0, &cset, nullptr, nullptr, &tv);
-                    if (FD_ISSET(clientSocket, &cset))
+                    tval tv {0, 100000};
+                    if (select(0, &cset, nullptr, nullptr, &tv) < 0)
+                    {
+                        cout << "client select failed" << endl;
+                        ok = false;
+                    }
+                    else if (FD_ISSET(clientSocket, &cset))
                     {
                         char buffer[1024];
                         int bytes = recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -135,61 +152,15 @@ bool SampleSrv::run()
     return ok or cleanup();
 }
 
-//     struct addrinfo *result = nullptr;
-//     struct addrinfo hints;
-
-//     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-//     ZeroMemory(&hints, sizeof(hints));
-//     hints.ai_family = AF_INET;
-//     hints.ai_socktype = SOCK_STREAM;
-//     hints.ai_protocol = IPPROTO_TCP;
-//     hints.ai_flags = AI_PASSIVE;
-
-//     iResult = getaddrinfo(nullptr, "8080", &hints, &result);
-//     if (iResult != 0)
-//     {
-//         WSACleanup();
-//         return false;
-//     }
-
-//     mListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-//     if (mListenSocket == INVALID_SOCKET)
-//     {
-//         freeaddrinfo(result);
-//         WSACleanup();
-//         return false;
-//     }
-
-//     iResult = bind(mListenSocket, result->ai_addr, (int)result->ai_addrlen);
-//     if (iResult == SOCKET_ERROR)
-//     {
-//         freeaddrinfo(result);
-//         closesocket(mListenSocket);
-//         WSACleanup();
-//         return false;
-//     }
-
-//     freeaddrinfo(result);
-
-//     iResult = listen(mListenSocket, SOMAXCONN);
-//     if (iResult == SOCKET_ERROR)
-//     {
-//         closesocket(mListenSocket);
-//         WSACleanup();
-//         return false;
-//     }
-
-//     return true;
-// }
-
 SampleSrv::~SampleSrv()
 {
     if (mListenSocket != INVALID_SOCKET)
     {
         closesocket(mListenSocket);
     }
+#ifdef _WIN32
     WSACleanup();
+#endif
 }
 
 int main()
