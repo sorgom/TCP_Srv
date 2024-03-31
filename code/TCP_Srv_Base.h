@@ -7,7 +7,7 @@
 #ifndef TCP_SRV_BASE_H
 #define TCP_SRV_BASE_H
 
-#include <TCP_Srv/BaseTypes.h>
+#include "BaseTypes.h"
 
 #ifdef _WIN32
 #include <winsock2.h>

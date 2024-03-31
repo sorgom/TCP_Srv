@@ -23,7 +23,7 @@ TARGETDIR = bin
 TARGET = $(TARGETDIR)/TCP_Srv_Echo_verbose
 OBJDIR = obj/TCP_Srv_Echo_verbose
 DEFINES +=
-INCLUDES += -I../include
+INCLUDES +=
 FORCE_INCLUDE +=
 ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -std=c++17 -pedantic-errors -Werror -Wall -DTRACE_ON
@@ -119,13 +119,13 @@ endif
 # File Rules
 # #############################################
 
-$(OBJDIR)/TCP_Srv_Echo.o: ../sample/TCP_Srv_Echo.cpp
+$(OBJDIR)/TCP_Srv_Base.o: ../code/TCP_Srv_Base.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/TCP_Srv_Echo_main.o: ../sample/TCP_Srv_Echo_main.cpp
+$(OBJDIR)/TCP_Srv_Echo.o: ../code/TCP_Srv_Echo.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/TCP_Srv_Base.o: ../src/TCP_Srv_Base.cpp
+$(OBJDIR)/TCP_Srv_Echo_main.o: ../code/TCP_Srv_Echo_main.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

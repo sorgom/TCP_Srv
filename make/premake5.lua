@@ -1,12 +1,9 @@
 --  ============================================================
 --  premake5 build rules
 --  ============================================================
-includesBase = { '../include' }
 
 buildOptsGcc = '-std=c++17 -pedantic-errors -Werror -Wall '
 buildOptsVS = '/std:c++17 /W4 ' 
-
-dummy = { '../sample/dummy.cpp' }
 
 --  ============================================================
 --  sample TCP_Srv_Echo based on TCP_Srv_Base
@@ -18,9 +15,8 @@ workspace 'TCP_Srv_Echo_silent'
     objdir 'obj/%{prj.name}'
 
     project 'TCP_Srv_Echo_silent'
-        includedirs { includesBase }
         kind 'ConsoleApp'
-        files { '../src/*.cpp', '../sample/TCP_Srv_Echo*.cpp' }
+        files { '../code/*.cpp' }
 
         filter { 'action:vs*' }
             warnings 'high'
@@ -42,9 +38,8 @@ workspace 'TCP_Srv_Echo_verbose'
     objdir 'obj/%{prj.name}'
 
     project 'TCP_Srv_Echo_verbose'
-        includedirs { includesBase }
         kind 'ConsoleApp'
-        files { '../src/*.cpp', '../sample/TCP_Srv_Echo*.cpp' }
+        files { '../code/*.cpp' }
 
         filter { 'action:vs*' }
             warnings 'high'

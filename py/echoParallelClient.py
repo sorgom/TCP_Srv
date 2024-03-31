@@ -23,7 +23,7 @@ def tfunc(nr:int, prot:int, addr:str, port:int, message:str, loops:int):
         s.connect((addr, port))
         log("%02d connected." % nr)
         for n in range(loops):
-                if n > 0: sleep(1)
+                if n > 0: sleep(0.25)
                 log("%02d %d / %d send: '%s'" % (nr, n + 1, loops, message))
                 s.sendall(message.encode())
                 data = s.recv(1024)
