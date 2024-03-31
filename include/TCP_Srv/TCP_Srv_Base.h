@@ -36,17 +36,15 @@ public:
     void run(const INT32 argc, const CONST_C_STRING* const argv);
 
 protected:
-    using Buffer = CHAR[READ_BUFFER_SIZE];
+    constexpr static UINT32 tmSec = SELECT_SECONDS;
+    constexpr static UINT32 tmMic = SELECT_MILLI_SECONDS * 1000;
+    constexpr static UINT32 bufSize = READ_BUFFER_SIZE;
+    using Buffer = CHAR[bufSize];
     virtual void process(const SOCKET clientSocket, Buffer buff, size_t n) = 0;
  
 private:
     // thread method
     void tm(SOCKET clientSocket);
-
-    inline static timeval gettval()
-    {
-        return {SELECT_SECONDS, SELECT_MILLI_SECONDS * 1000};
-    }
 };
 
 #endif // _H

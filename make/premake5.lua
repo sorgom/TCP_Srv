@@ -1,13 +1,9 @@
 --  ============================================================
 --  premake5 build rules for gcc (gmake2):
 --  ============================================================
+includesBase = { '../include' }
 
 buildOptsGcc = { '-std=c++17 -pedantic-errors -Werror -Wall' }
-includesBase = { '../include' }
---  ============================================================
---  VS setup
---  warning level: 4 (high)
---  ============================================================
 buildOptsVS = { '/std:c++17 /W4' }
 
 dummy = { '../sample/dummy.cpp' }
@@ -20,7 +16,7 @@ dummy = { '../sample/dummy.cpp' }
 workspace '01_TCP_Srv_Base'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj/%{prj.name}'
+    objdir 'obj'
     includedirs { includesBase }
     targetdir 'lib'
 
@@ -37,14 +33,14 @@ workspace '01_TCP_Srv_Base'
         files { '../src/*.cpp' }
 
 --  ============================================================
---  > sample: metod threads
---  ->  gcc: bin/11_sampleMethodTreads
---  ->  VS: exe/11_sampleMethodTreads.exe
+--  > sample: method threads
+--  ->  gcc: bin/sample_Method_Threads
+--  ->  VS: exe/sample_Method_Threads.exe
 --  ============================================================
-workspace '11_SampleMethodTreads'
+workspace '11_sample_Method_Threads'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj/%{prj.name}'
+    objdir 'obj'
 
     filter { 'action:vs*' }
         warnings 'high'
@@ -56,28 +52,28 @@ workspace '11_SampleMethodTreads'
         linkoptions { '-pthread' }
         targetdir 'bin'
 
-    project 'sampleMethodTreads'
+    project 'sample_Method_Threads'
         kind 'ConsoleApp'
-        files { '../sample/MethodThreads.cpp' }
+        files { '../sample/sample_Method_Threads.cpp' }
 
 --  ============================================================
 --  > Microsoft sample: echo server
 --  VS only
---  ->  exe/12_MS_SamplSrv.exe
+--  ->  exe/sample_Srv_MicroSoft_VS.exe
 --  ============================================================
-workspace '12_MS_SamplSrv'
+workspace '12_sample_Srv_MicroSoft_VS'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj/%{prj.name}'
-    kind 'ConsoleApp'
+    objdir 'obj'
 
-    project 'MS_SamplSrv'
+    project 'sample_Srv_MicroSoft_VS'
+        kind 'ConsoleApp'
 
         filter { 'action:vs*' }
             warnings 'high'
             buildoptions { buildOptsVS }
             targetdir 'exe'
-            files { '../sample/MS_SampleSrv.cpp' }
+            files { '../sample/sample_Srv_MicroSoft_VS.cpp' }
 
         filter { 'action:gmake*' }
             buildoptions { buildOptsGcc }
@@ -86,18 +82,19 @@ workspace '12_MS_SamplSrv'
 
 --  ============================================================
 --  > Tenouk sample: echo server
---  ->  gcc: bin/12_Tenouk_SampleSrv
---  ->  VS: exe/12_Tenouk_SampleSrv.exe
+--  ->  gcc: bin/sample_Srv_Tenouk
+--  ->  VS: exe/sample_Srv_Tenouk.exe
 --  ============================================================
-workspace '13_Tenouk_SampleSrv'
+workspace '13_sample_Srv_Tenouk'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj/%{prj.name}'
-    kind 'ConsoleApp'
-    includedirs { includesBase }
-    files { '../sample/Tenouk_SampleSrv.cpp' }
+    objdir 'obj'
 
     project 'Tenouk_SampleSrv'
+        kind 'ConsoleApp'
+        includedirs { includesBase }
+        files { '../sample/sample_Srv_Tenouk.cpp' }
+
         filter { 'action:vs*' }
             warnings 'high'
             buildoptions { buildOptsVS }
@@ -106,4 +103,3 @@ workspace '13_Tenouk_SampleSrv'
         filter { 'action:gmake*' }
             buildoptions { buildOptsGcc }
             targetdir 'bin'
-                        

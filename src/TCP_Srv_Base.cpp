@@ -30,7 +30,7 @@ void TCP_Srv_Base::tm(SOCKET clientSocket)
         fd_set cset;
         FD_ZERO(&cset);
         FD_SET(clientSocket, &cset);
-        tval tv = gettval();
+        tval tv { tmSec, tmMic };
         if (select(0, &cset, nullptr, nullptr, &tv) < 0)
         {
             TRACE("client select failed")
@@ -117,7 +117,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         fd_set lset;
         FD_ZERO(&lset);
         FD_SET(listenSocket, &lset);
-        tval tv = gettval();
+        tval tv { tmSec, tmMic };
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
             cerr << "listen select failed" << endl;

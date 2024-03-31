@@ -44,7 +44,7 @@ if test ! -z $rem; then git clean -dxf . 2>/dev/null >/dev/null; pre=1; fi
 if test ! -z $pre; then premake5 gmake2 > /dev/null; fi
 
 st=$(date +%s)
-rm -f $(ls *.make | grep '_MS_') $(ls *.make | grep '_MS_')
+rm -f *_VS.make
 
 for fn in $(ls *.make | grep '^[0-9][0-9]'); do mk $fn; done
 wait
