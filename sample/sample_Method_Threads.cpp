@@ -34,7 +34,7 @@ using std::endl;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
-using mutextlock = std::unique_lock<std::mutex>;
+using mutexlock = std::unique_lock<std::mutex>;
 
 void Test::start()
 {
@@ -53,7 +53,7 @@ void Test::start()
 
 void Test::stop() 
 {
-    mutextlock lock(mMtx);
+    mutexlock lock(mMtx);
     cout << "stop ..." << endl; 
     mRunning = false;
     lock.unlock(); 
@@ -62,7 +62,7 @@ void Test::stop()
 
 void Test::tm(int s)
 {
-    mutextlock lock(mMtx);
+    mutexlock lock(mMtx);
     lock.unlock();
     while (mRunning)
     {

@@ -3,32 +3,58 @@
 --  ============================================================
 includesBase = { '../include' }
 
-buildOptsGcc = { '-std=c++17 -pedantic-errors -Werror -Wall' }
-buildOptsVS = { '/std:c++17 /W4' }
+buildOptsGcc = '-std=c++17 -pedantic-errors -Werror -Wall '
+buildOptsVS = '/std:c++17 /W4 ' 
 
 dummy = { '../sample/dummy.cpp' }
 
 --  ============================================================
---  TCP_Srv_Base library
+--  sample TCP_Srv_Echo based on TCP_Srv_Base
+--  with tracing off
 --  ============================================================
-workspace 'TCP_Srv_Base'
+workspace 'TCP_Srv_Echo_silent'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj'
-    includedirs { includesBase }
-    targetdir 'lib'
+    objdir 'obj/%{prj.name}'
 
-    filter { 'action:vs*' }
-        warnings 'high'
-        buildoptions { buildOptsVS }
+    project 'TCP_Srv_Echo_silent'
+        includedirs { includesBase }
+        kind 'ConsoleApp'
+        files { '../src/*.cpp', '../sample/TCP_Srv_Echo*.cpp' }
 
-    filter { 'action:gmake*' }
-        buildoptions { buildOptsGcc }
+        filter { 'action:vs*' }
+            warnings 'high'
+            buildoptions { buildOptsVS .. '/wd4100' }
+            targetdir 'exe'
+    
+        filter { 'action:gmake*' }
+            buildoptions { buildOptsGcc }
+            linkoptions { '-pthread' }
+            targetdir 'bin'
 
-    project 'TCP_Srv_Base'
-        kind 'StaticLib'
-        targetdir 'lib'
-        files { '../src/*.cpp' }
+--  ============================================================
+--  sample TCP_Srv_Echo based on TCP_Srv_Base
+--  with tracing on
+--  ============================================================
+workspace 'TCP_Srv_Echo_verbose'
+    configurations { 'ci' }
+    language 'C++'
+    objdir 'obj/%{prj.name}'
+
+    project 'TCP_Srv_Echo_verbose'
+        includedirs { includesBase }
+        kind 'ConsoleApp'
+        files { '../src/*.cpp', '../sample/TCP_Srv_Echo*.cpp' }
+
+        filter { 'action:vs*' }
+            warnings 'high'
+            buildoptions { buildOptsVS .. '/DTRACE_ON' }
+            targetdir 'exe'
+    
+        filter { 'action:gmake*' }
+            buildoptions { buildOptsGcc .. '-DTRACE_ON' }
+            linkoptions { '-pthread' }
+            targetdir 'bin'
 
 --  ============================================================
 --  sample of method threads
@@ -36,7 +62,7 @@ workspace 'TCP_Srv_Base'
 workspace 'sample_Method_Threads'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj'
+    objdir 'obj/%{prj.name}'
 
     filter { 'action:vs*' }
         warnings 'high'
@@ -58,7 +84,7 @@ workspace 'sample_Method_Threads'
 workspace 'sample_Srv_MicroSoft_VS'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj'
+    objdir 'obj/%{prj.name}'
 
     project 'sample_Srv_MicroSoft_VS'
         kind 'ConsoleApp'
@@ -80,7 +106,7 @@ workspace 'sample_Srv_MicroSoft_VS'
 workspace 'sample_Srv_Tenouk'
     configurations { 'ci' }
     language 'C++'
-    objdir 'obj'
+    objdir 'obj/%{prj.name}'
 
     project 'sample_Srv_Tenouk'
         kind 'ConsoleApp'

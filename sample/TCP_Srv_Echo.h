@@ -11,10 +11,12 @@ class TCP_Srv_Echo : public TCP_Srv_Base
 public:
     inline TCP_Srv_Echo() = default;
 protected:   
-    void process(const SOCKET clientSocket, Buffer buff, size_t n) final;
+    void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) final;
 private:
     //  prevent from parallel output
     std::mutex mMtx;
+
+    
 };
 
 #endif // _H

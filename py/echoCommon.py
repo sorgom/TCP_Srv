@@ -16,7 +16,7 @@ def getSocketData(*args):
     port = 8080
     loops = 1
     threads = 1
-    message = 'Hello world'    
+    message = 'hello world'    
     for arg in args:
         if rx4.match(arg):
             addr = arg
