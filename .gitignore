@@ -50,3 +50,6 @@ exe
 # general
 tmp.*
 tmp_.*
+
+# sample
+!TCP_Srv*.make

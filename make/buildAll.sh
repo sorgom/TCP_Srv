@@ -46,7 +46,7 @@ if test ! -z $pre; then premake5 gmake2 > /dev/null; fi
 st=$(date +%s)
 rm -f *_VS.make
 
-for fn in $(ls *.make | grep '^[0-9][0-9]'); do mk $fn; done
+for fn in *.make; do mk $fn; done
 wait
 echo binaries:
 for b in  bin/*; do echo "- $b"; done

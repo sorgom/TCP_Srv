@@ -1,5 +1,5 @@
 --  ============================================================
---  premake5 build rules for gcc (gmake2):
+--  premake5 build rules
 --  ============================================================
 includesBase = { '../include' }
 
@@ -9,11 +9,9 @@ buildOptsVS = { '/std:c++17 /W4' }
 dummy = { '../sample/dummy.cpp' }
 
 --  ============================================================
---  > TCP_Srv_Base library
---  ->  VS: lib/TCP_Srv_Base.lib
---  ->  gcc: lib/libTCP_Srv_Base.a
+--  TCP_Srv_Base library
 --  ============================================================
-workspace '01_TCP_Srv_Base'
+workspace 'TCP_Srv_Base'
     configurations { 'ci' }
     language 'C++'
     objdir 'obj'
@@ -33,11 +31,9 @@ workspace '01_TCP_Srv_Base'
         files { '../src/*.cpp' }
 
 --  ============================================================
---  > sample: method threads
---  ->  gcc: bin/sample_Method_Threads
---  ->  VS: exe/sample_Method_Threads.exe
+--  sample of method threads
 --  ============================================================
-workspace '11_sample_Method_Threads'
+workspace 'sample_Method_Threads'
     configurations { 'ci' }
     language 'C++'
     objdir 'obj'
@@ -57,11 +53,9 @@ workspace '11_sample_Method_Threads'
         files { '../sample/sample_Method_Threads.cpp' }
 
 --  ============================================================
---  > Microsoft sample: echo server
---  VS only
---  ->  exe/sample_Srv_MicroSoft_VS.exe
+--  sample echo server Microsoft VS only
 --  ============================================================
-workspace '12_sample_Srv_MicroSoft_VS'
+workspace 'sample_Srv_MicroSoft_VS'
     configurations { 'ci' }
     language 'C++'
     objdir 'obj'
@@ -81,16 +75,14 @@ workspace '12_sample_Srv_MicroSoft_VS'
             targetdir 'bin'
 
 --  ============================================================
---  > Tenouk sample: echo server
---  ->  gcc: bin/sample_Srv_Tenouk
---  ->  VS: exe/sample_Srv_Tenouk.exe
+--  sample echo server Tenouk
 --  ============================================================
-workspace '13_sample_Srv_Tenouk'
+workspace 'sample_Srv_Tenouk'
     configurations { 'ci' }
     language 'C++'
     objdir 'obj'
 
-    project 'Tenouk_SampleSrv'
+    project 'sample_Srv_Tenouk'
         kind 'ConsoleApp'
         includedirs { includesBase }
         files { '../sample/sample_Srv_Tenouk.cpp' }
