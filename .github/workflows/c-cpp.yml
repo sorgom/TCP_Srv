@@ -16,9 +16,9 @@ jobs:
       runs-on: ubuntu-latest
 
       steps:
-      -   name: "Checkout repository"
+      -   name: Checkout repository
           uses: actions/checkout@v3
-      -   name: "build silent version"
+      -   name: "build config silent"
           run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=silent
-      -   name: "build verbose version"
+      -   name: "build config verbose"
           run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=verbose
