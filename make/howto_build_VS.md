@@ -27,15 +27,22 @@ e.g. VS 2019
 TCP_Srv/make$> premake5 vs2019
 Building configurations...
 Running action 'vs2019'...
-Generated TCP_Srv_Echo_silent.sln...
-Generated TCP_Srv_Echo_silent.vcxproj...
-Generated TCP_Srv_Echo_verbose.sln...
-Generated TCP_Srv_Echo_verbose.vcxproj...
-Done (45ms).
+Generated TCP_Srv_Echo.sln...
+Generated TCP_Srv_Echo.vcxproj...
+Done (41ms)..
 ````
 ## 2) build executables in VS
-- open solution (*.sln)
-- build and run
+- open solution (TCP_Srv/make/TCP_Srv_Echo.sln)
+- select a configuration
+    - _silent_: 
+        - no debug
+        - no output
+        - optimized for speed
+    - _verbose_:
+        - verbose output
+        - debug infos
+        - no optimization
+- build (and run)
 
 ## 3) VS keyboard shortcuts
 - build: [CTRL] [shift] [B]

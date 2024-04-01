@@ -48,13 +48,13 @@ class EchoCommon(object):
         logconfig(format="%(asctime)s %(message)s", level=INFO, datefmt="%H:%M:%S")
         
         if self.verbose:
-            self.echo = self.log 
+            self.tell = self.log 
             print()
             print('addr:', self.addr)
             print('prot:', 'ipv6' if self.prot == socket.AF_INET6 else 'ipv4')
             print('port:', self.port)
         else:
-            self.echo = self.silent
+            self.tell = self.silent
 
     def getsocket(self):
         return socket.socket(self.prot, socket.SOCK_STREAM)

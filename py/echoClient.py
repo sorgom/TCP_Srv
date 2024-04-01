@@ -5,7 +5,6 @@
 
 from echoCommon import EchoCommon
 from threading import Thread
-from socket import socket, SOCK_STREAM
 from time import sleep
 
 class EchoClient(EchoCommon):
@@ -21,16 +20,16 @@ class EchoClient(EchoCommon):
     
     def tfunc(self, nr:int):
         try:
-            self.echo("%02d connecting ..." % nr)
+            self.tell("%02d connecting ..." % nr)
             s = self.getsocket()
             s.connect((self.addr, self.port))
-            self.echo("%02d connected." % nr)
+            self.tell("%02d connected." % nr)
             for n in range(self.loops):
                 if n > 0: sleep(0.25)
-                self.echo("%02d %d / %d send: '%s'" % (nr, n + 1, self.loops, self.message))
+                self.tell("%02d %d / %d send: '%s'" % (nr, n + 1, self.loops, self.message))
                 s.sendall(self.message.encode())
                 data = s.recv(1024)
-                self.echo("%02d %d / %d recv: '%s'" % (nr, n + 1, self.loops, data.decode()))
+                self.tell("%02d %d / %d recv: '%s'" % (nr, n + 1, self.loops, data.decode()))
             s.close()
         except Exception as e:
             self.log("%02d %s" % (nr, e))

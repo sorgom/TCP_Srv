@@ -2,7 +2,6 @@
 #   simple TCP echo server
 #   ============================================================
 #   created by Manfred Sorgo
-#   see: https://realpython.com/python-sockets/
 
 from echoCommon import EchoCommon
 from select import select
@@ -27,18 +26,13 @@ class EchoServer(EchoCommon):
                             while True:
                                 data = conn.recv(1024)
                                 if data:
-                                    self.echo(f'< {data.decode()} >')
+                                    self.tell(f'< {data.decode()} >')
                                 else:
                                     break
                                 conn.sendall(data)    
         except Exception as e:
             listenSocket.close()
             self.log(e)
-
-    def done(*any):
-        print()
-        print('done')
-        exit()
 
     def usage(self, name):
         print(f'Usage: {name} [options] [address] [port]')

@@ -18,8 +18,6 @@ jobs:
       steps:
       -   name: "Checkout repository"
           uses: actions/checkout@v3
-          with:
-              submodules: 'true'
       -   name: "build silent version"
           run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=silent
       -   name: "build verbose version"

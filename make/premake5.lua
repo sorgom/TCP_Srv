@@ -1,7 +1,15 @@
 --  ============================================================
 --  premake5 build rules
 --  TCP_Srv_Echo based on TCP_Srv_Base
---  configurations: silent, verbose, deb
+--  configurations: 
+--  - silent:
+--      - no debug
+--      - no output
+--      - optimized for speed
+--  - verbose:
+--      - verbose output
+--      - debug infos
+--      - no optimization
 --  ============================================================
 --  created by Manfred Sorgo
 
