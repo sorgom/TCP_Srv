@@ -4,63 +4,46 @@
 #   created by Manfred Sorgo
 #   see: https://realpython.com/python-sockets/
 
-from echoCommon import getSocketData
-from sys import argv
+from echoCommon import EchoCommon
 from select import select
-import signal
-from os.path import basename
-from getopt import getopt
 
-class EchoServer(object):
+class EchoServer(EchoCommon):
     def __init__(self, *args):
-        self.verbose = False
-        opts, args = getopt(args, 'vh')
-        for o, v in opts:
-            if o == '-v':
-                self.verbose = True
-            elif o == '-h':
-                self.help()
-
-        for sig in ('TERM', 'INT'):
-            signal.signal(getattr(signal, 'SIG' + sig), lambda *any: self.done())
-
-        [self.sock, self.addr, self.port, *x] = getSocketData(*args)
+        super().__init__(*args)
 
     def run(self):
         try:
-            self.sock.bind((self.addr, self.port))
-            self.sock.listen()
+            listenSocket = self.getsocket()
+            listenSocket.bind((self.addr, self.port))
+            listenSocket.listen()
 
             print('Press Ctrl+C to stop')
             while True:
-                if self.verbose: print('.', end='', flush=True)
                 for n in range(20):
-                    rd, *x = select([self.sock], [], [], 0.05)
+                    rd, *x = select([listenSocket], [], [], 0.05)
                     if rd:
-                        conn, *x = self.sock.accept()
+                        conn, *x = listenSocket.accept()
                         with conn:
                             while True:
                                 data = conn.recv(1024)
-                                if not data:
+                                if data:
+                                    self.echo(f'< {data.decode()} >')
+                                else:
                                     break
                                 conn.sendall(data)    
         except Exception as e:
-            self.sock.close()
-            print(e)
+            listenSocket.close()
+            self.log(e)
 
     def done(*any):
         print()
         print('done')
         exit()
 
-    def help(self):
-        print(f'Usage: {basename(argv[0])} [options] [addr] [port]')
-        print("""options:
-    -v  verbose
-    -h  this help""")
-        exit()
+    def usage(self, name):
+        print(f'Usage: {name} [options] [address] [port]')
 
 if __name__ == '__main__':
+    from sys import argv
     srv = EchoServer(*argv[1:])
     srv.run()
-

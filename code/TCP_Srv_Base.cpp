@@ -25,8 +25,8 @@ using std::endl;
 #include <iomanip>
 using std::setw;
 
-//  tracing
-#ifdef TRACE_ON
+//  verbosity
+#ifdef VERBOSE
 //  general trace
 #define TRACE(MSG) cout << MSG << endl;
 //  mutex locked trace with thread number
@@ -86,7 +86,7 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 }
 
 //  trace error and exit the processing
-#define TRACE_ERR_X(MSG) cerr << endl << MSG << endl; cont = false;
+#define ERR_X(MSG) cerr << endl << MSG << endl; cont = false;
 
 void TCP_Srv_Base::run(const UINT16 port)
 {
@@ -100,7 +100,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
-            TRACE_ERR_X("WSAStartup failed")
+            ERR_X("WSAStartup failed")
         }
     }
 #endif
@@ -110,7 +110,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (listenSocket < 0) 
         {
-            TRACE_ERR_X("socket failed")
+            ERR_X("socket failed")
         }
     }
     //  bind socket to port
@@ -123,13 +123,13 @@ void TCP_Srv_Base::run(const UINT16 port)
 
         if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
         {
-            TRACE_ERR_X("bind failed: port " << port)
+            ERR_X("bind failed: port " << port)
         }
     }
     //  listen to socket
     if (cont and (listen(listenSocket, SOMAXCONN) < 0))
     {
-        TRACE_ERR_X("listen failed")
+        ERR_X("listen failed")
     }
 
     //  select and accept loop
@@ -149,7 +149,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         tval tv { tmSec, tmMic };
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
-            TRACE_ERR_X("listen select failed")
+            ERR_X("listen select failed")
         }
 
         //  accept to new client socket if listen socket is set 
@@ -158,7 +158,7 @@ void TCP_Srv_Base::run(const UINT16 port)
             SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
             if (clientSocket < 0) 
             {
-                TRACE_ERR_X("accept failed")
+                ERR_X("accept failed")
             }
             //  start thread with client socket
             else

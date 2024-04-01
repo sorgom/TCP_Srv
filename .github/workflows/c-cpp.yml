@@ -21,6 +21,6 @@ jobs:
       with:
          submodules: 'true'
     - name: "build silent version"
-      run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo_silent.make
+      run: make/build.sh -s
     - name: "build verbose version"
-      run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo_verbose.make
+      run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=verbose

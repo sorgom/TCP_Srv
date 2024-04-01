@@ -1,52 +1,37 @@
 --  ============================================================
 --  premake5 build rules
+--  TCP_Srv_Echo based on TCP_Srv_Base
+--  configurations: silent, verbose, deb
 --  ============================================================
+--  created by Manfred Sorgo
 
-buildOptsGcc = '-std=c++17 -pedantic-errors -Werror -Wall '
-buildOptsVS = '/std:c++17 /W4 ' 
-
---  ============================================================
---  sample TCP_Srv_Echo based on TCP_Srv_Base
---  with tracing off
---  ============================================================
-workspace 'TCP_Srv_Echo_silent'
-    configurations { 'ci' }
+workspace 'TCP_Srv_Echo'
+    configurations { 'silent', 'verbose' }
     language 'C++'
-    objdir 'obj/%{prj.name}'
+    optimize 'On'
 
-    project 'TCP_Srv_Echo_silent'
+    project 'TCP_Srv_Echo'
         kind 'ConsoleApp'
         files { '../code/*.cpp' }
 
-        filter { 'action:vs*' }
-            warnings 'high'
-            buildoptions { buildOptsVS .. '/wd4100' }
-            targetdir 'exe'
+        filter { 'configurations:silent' }
+            defines { 'NDEBUG' }
+            symbols 'Off'
+            optimize 'Speed'
     
-        filter { 'action:gmake*' }
-            buildoptions { buildOptsGcc }
-            linkoptions { '-pthread' }
-            targetdir 'bin'
-
---  ============================================================
---  sample TCP_Srv_Echo based on TCP_Srv_Base
---  with tracing on
---  ============================================================
-workspace 'TCP_Srv_Echo_verbose'
-    configurations { 'ci' }
-    language 'C++'
-    objdir 'obj/%{prj.name}'
-
-    project 'TCP_Srv_Echo_verbose'
-        kind 'ConsoleApp'
-        files { '../code/*.cpp' }
+        filter { 'configurations:verbose' }
+            defines { 'DEBUG', 'VERBOSE' }
+            symbols 'On'
+            optimize 'Off'
 
         filter { 'action:vs*' }
+            buildoptions { '/std:c++17 /W4 /wd4100' }
+            objdir 'obj/vs/'
             warnings 'high'
-            buildoptions { buildOptsVS .. '/DTRACE_ON' }
             targetdir 'exe'
-    
+
         filter { 'action:gmake*' }
-            buildoptions { buildOptsGcc .. '-DTRACE_ON' }
+            buildoptions { '-std=c++17 -pedantic-errors -Werror -Wall' }
+            objdir 'obj/gcc/'
             linkoptions { '-pthread' }
             targetdir 'bin'
