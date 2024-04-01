@@ -1,0 +1,26 @@
+#   ============================================================
+#   continuous integration setup 
+#   ============================================================
+#   created by Manfred Sorgo
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  buildVersions:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Checkout repository"
+      uses: actions/checkout@v3
+      with:
+         submodules: 'true'
+    - name: "build silent version"
+      run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo_silent.make
+    - name: "build verbose version"
+      run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo_verbose.make

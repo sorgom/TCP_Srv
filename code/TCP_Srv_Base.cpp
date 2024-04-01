@@ -85,8 +85,8 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
     }
 }
 
-//  trace error and exit loop
-#define TRACE_ERR_X(MSG) { cerr << endl << MSG << endl; cont = false; }
+//  trace error and exit the processing
+#define TRACE_ERR_X(MSG) cerr << endl << MSG << endl; cont = false;
 
 void TCP_Srv_Base::run(const UINT16 port)
 {
@@ -99,14 +99,19 @@ void TCP_Srv_Base::run(const UINT16 port)
     {
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-        TRACE_ERR_X("WSAStartup failed")
+        {
+            TRACE_ERR_X("WSAStartup failed")
+        }
     }
 #endif
     //  create socket
     if (cont)
     {
         listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (listenSocket < 0) TRACE_ERR_X("socket failed")
+        if (listenSocket < 0) 
+        {
+            TRACE_ERR_X("socket failed")
+        }
     }
     //  bind socket to port
     if (cont)
@@ -117,14 +122,24 @@ void TCP_Srv_Base::run(const UINT16 port)
         addr.sin_port = htons(port);
 
         if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
-        TRACE_ERR_X("bind failed: port " << port)
+        {
+            TRACE_ERR_X("bind failed: port " << port)
+        }
     }
     //  listen to socket
     if (cont and (listen(listenSocket, SOMAXCONN) < 0))
-    TRACE_ERR_X("listen failed")
+    {
+        TRACE_ERR_X("listen failed")
+    }
 
     //  select and accept loop
-    TRACE("running on port " << port << endl << "press Ctrl+C to stop")
+    if (cont)
+    {
+        cout 
+            << "running on port " << port << endl
+            << "press Ctrl+C to stop" << endl;
+    }
+
     while (cont)
     {
         //  select
@@ -133,13 +148,18 @@ void TCP_Srv_Base::run(const UINT16 port)
         FD_SET(listenSocket, &lset);
         tval tv { tmSec, tmMic };
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
-        TRACE_ERR_X("listen select failed")
+        {
+            TRACE_ERR_X("listen select failed")
+        }
 
         //  accept to new client socket if listen socket is set 
         else if (FD_ISSET(listenSocket, &lset))
         {
             SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
-            if (clientSocket < 0) TRACE_ERR_X("accept failed")
+            if (clientSocket < 0) 
+            {
+                TRACE_ERR_X("accept failed")
+            }
             //  start thread with client socket
             else
             {

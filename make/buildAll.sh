@@ -6,7 +6,6 @@ help()
     echo "build all major makes"
     echo "options:"
     echo "-r  remove all untracked artifacts"
-    echo "-p  premake5 makefiles"
     echo "-h  this help"
     echo "===================================="
     exit
@@ -26,21 +25,16 @@ mk()
 }
 
 rem=
-exe=
-pre=
-while getopts hrp option; do
+while getopts hr option; do
     case $option in
       (h)  help;;
       (r)  rem=1;;
-      (p)  pre=1
     esac
 done
 
 cd $(dirname $0)
 
-if test ! -z $rem; then git clean -dxf . 2>/dev/null >/dev/null; pre=1; fi
-
-if test ! -z $pre; then premake5 gmake2 > /dev/null; fi
+if test ! -z $rem; then git clean -dxf . 2>/dev/null >/dev/null; fi
 
 st=$(date +%s)
 

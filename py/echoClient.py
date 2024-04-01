@@ -30,7 +30,7 @@ def tfunc(nr:int, prot:int, addr:str, port:int, message:str, loops:int):
                 log("%02d %d / %d recv: '%s'" % (nr, n + 1, loops, data.decode()))
         s.close()
     except Exception as e:
-        print(e)
+        log("%02d %s" % (nr, e))
 
 if __name__ == '__main__':
     getEchoes(*argv[1:])
