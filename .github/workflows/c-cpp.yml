@@ -11,7 +11,7 @@ on:
         branches: [ 'dev' ]
 
 jobs:
-    build Configs:
+    buildConfigs:
 
       runs-on: ubuntu-latest
 
