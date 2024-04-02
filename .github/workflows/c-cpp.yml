@@ -23,6 +23,6 @@ jobs:
         -   name: build config "prod"
             run: make/build.sh -p
         -   name: build config "verbose"
-            run: cd make; git clean -dxf .; make -j config=verbose
+            run: make/build.sh -v
         -   name: build config "vsmall"
-            run: cd make; git clean -dxf .; make -j config=vsmall
+            run: make/build.sh -s
