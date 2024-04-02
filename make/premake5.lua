@@ -24,7 +24,7 @@ workspace 'TCP_Srv_Echo'
 
     project 'TCP_Srv_Echo'
         kind 'ConsoleApp'
-        files { '../code/*.cpp' }
+        files { '../code/TCP_Srv_*.cpp' }
 
         filter { 'configurations:silent' }
             defines { 'NDEBUG' }

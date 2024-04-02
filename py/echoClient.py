@@ -26,26 +26,35 @@ class EchoClient(EchoCommon):
             self.tell("%02d connected" % nr)
             for n in range(self.loops):
                 if n > 0: sleep(0.25)
-                self.tell("%02d %d / %d send: '%s'" % (nr, n + 1, self.loops, self.message))
-                s.sendall(self.message.encode())
+                self.tell("%02d %d / %d send: %s" % (nr, n + 1, self.loops, self.getmessage()))
+                s.sendall(self.getdata())
                 s.settimeout(None)
-                answer = ''
+                rdata = bytes()
                 data = s.recv(1024)
-                print('data:', len(data))
                 try:
                     while len(data) > 0:
-                        answer += data.decode()
-                        print(answer)
+                        rdata += data
                         s.settimeout(0.125)
                         data = s.recv(1024)
                 except Exception as t:
                     pass
                 finally:
-                    self.tell("%02d %d / %d recv: '%s'" % (nr, n + 1, self.loops, answer))
+                    if len(rdata) > 0:
+                        self.tell("%02d %d / %d recv: %s" % (nr, n + 1, self.loops, self.decode(rdata)))
             self.tell("%02d closing" % nr)
             s.close()
         except Exception as e:
             self.log("%02d %s" % (nr, e))
+
+    def decode(self, data:bytes) -> str:
+        return data.decode()
+
+    def getmessage(self) -> str:
+        return self.message
+
+    def getdata(self) -> bytes:
+        return self.message.encode()
+
 
 if __name__ == '__main__':
     from sys import argv
