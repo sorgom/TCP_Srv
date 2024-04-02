@@ -59,8 +59,11 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
             size_t size = recv(clientSocket, buff, sizeof(Buffer), 0);
             if (size > 0)
             {
-                TRACE_TM("<- " << size)
-                process(clientSocket, buff, size, nr);
+                do {
+                    TRACE_TM("<- " << size)
+                    process(clientSocket, buff, size, nr);
+                    size = recv(clientSocket, buff, sizeof(Buffer), 0);
+                } while (size > 0);
             }
             else
             {
@@ -91,6 +94,9 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 void TCP_Srv_Base::run(const UINT16 port)
 {
     std::cout << "..." << endl;
+    TRACE("timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms")
+    TRACE("buffer :" << setw(6) << buffSize << " bytes")
+
     bool cont = true;
     SOCKET listenSocket = INVALID_SOCKET;
 
@@ -135,9 +141,7 @@ void TCP_Srv_Base::run(const UINT16 port)
     //  select and accept loop
     if (cont)
     {
-        cout 
-            << "running on port " << port << endl
-            << "press Ctrl+C to stop" << endl;
+        cout << "port   :" << setw(6) << port << endl;
     }
 
     while (cont)

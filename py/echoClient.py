@@ -23,13 +23,26 @@ class EchoClient(EchoCommon):
             self.tell("%02d connecting ..." % nr)
             s = self.getsocket()
             s.connect((self.addr, self.port))
-            self.tell("%02d connected." % nr)
+            self.tell("%02d connected" % nr)
             for n in range(self.loops):
                 if n > 0: sleep(0.25)
                 self.tell("%02d %d / %d send: '%s'" % (nr, n + 1, self.loops, self.message))
                 s.sendall(self.message.encode())
+                s.settimeout(None)
+                answer = ''
                 data = s.recv(1024)
-                self.tell("%02d %d / %d recv: '%s'" % (nr, n + 1, self.loops, data.decode()))
+                print('data:', len(data))
+                try:
+                    while len(data) > 0:
+                        answer += data.decode()
+                        print(answer)
+                        s.settimeout(0.125)
+                        data = s.recv(1024)
+                except Exception as t:
+                    pass
+                finally:
+                    self.tell("%02d %d / %d recv: '%s'" % (nr, n + 1, self.loops, answer))
+            self.tell("%02d closing" % nr)
             s.close()
         except Exception as e:
             self.log("%02d %s" % (nr, e))

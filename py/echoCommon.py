@@ -56,7 +56,7 @@ class EchoCommon(object):
         else:
             self.tell = self.silent
 
-    def getsocket(self):
+    def getsocket(self) -> socket.socket:
         return socket.socket(self.prot, socket.SOCK_STREAM)
 
     def log(self, *args):

@@ -7,6 +7,21 @@
 #ifndef TCP_SRV_BASE_H
 #define TCP_SRV_BASE_H
 
+//  ============================================================
+//  behavior settings by compile time defines
+
+//  select timeout in milli seconds
+#ifndef SELECT_MILLI_SECONDS
+#define SELECT_MILLI_SECONDS 10
+#endif
+
+//  buffer size for reading
+#ifndef READ_BUFFER_SIZE
+#define READ_BUFFER_SIZE 1024
+#endif
+
+//  ============================================================
+
 #include "BaseTypes.h"
 
 #ifdef _WIN32
@@ -17,17 +32,6 @@ using SOCKET = INT32;
 #endif
 #include <mutex>
 
-#ifndef SELECT_SECONDS
-#define SELECT_SECONDS 0
-#endif
-
-#ifndef SELECT_MILLI_SECONDS
-#define SELECT_MILLI_SECONDS 10
-#endif
-
-#ifndef READ_BUFFER_SIZE
-#define READ_BUFFER_SIZE 1024
-#endif
 
 class TCP_Srv_Base
 {
@@ -39,10 +43,10 @@ public:
     void run(const INT32 argc, const CONST_C_STRING* const argv);
 
 protected:
-    constexpr static UINT32 tmSec = SELECT_SECONDS;
-    constexpr static UINT32 tmMic = SELECT_MILLI_SECONDS * 1000;
-    constexpr static UINT32 bufSize = READ_BUFFER_SIZE;
-    using Buffer = CHAR[bufSize];
+    constexpr static UINT32 tmSec = SELECT_MILLI_SECONDS / 1000;
+    constexpr static UINT32 tmMic = (SELECT_MILLI_SECONDS % 1000) * 1000;
+    constexpr static UINT32 buffSize = READ_BUFFER_SIZE;
+    using Buffer = CHAR[buffSize];
     
     //  process received data
     //  must be implemented by derived class

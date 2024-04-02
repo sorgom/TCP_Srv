@@ -1,10 +1,12 @@
 #   ============================================================
-#   simple TCP echo server
+#   TCP echo server
 #   ============================================================
 #   created by Manfred Sorgo
 
 from echoCommon import EchoCommon
 from select import select
+from threading import Thread
+from socket import socket
 
 class EchoServer(EchoCommon):
     def __init__(self, *args):
@@ -21,19 +23,28 @@ class EchoServer(EchoCommon):
                 for n in range(20):
                     rd, *x = select([listenSocket], [], [], 0.05)
                     if rd:
-                        conn, *x = listenSocket.accept()
-                        with conn:
-                            while True:
-                                data = conn.recv(1024)
-                                if data:
-                                    self.tell(f'< {data.decode()} >')
-                                else:
-                                    break
-                                conn.sendall(data)    
+                        Thread(target=self.tfunc, args=(listenSocket,)).start()
+                            
         except Exception as e:
             listenSocket.close()
             self.log(e)
 
+    def tfunc(self, listenSocket:socket):
+        try:
+            clientSocket, *x = listenSocket.accept()
+            with clientSocket:
+                addr, port = clientSocket.getpeername()
+                self.tell('C', addr, port)
+                while True:
+                    data = clientSocket.recv(1024)
+                    if not data: break
+                    self.tell(f'{port} < {data.decode()} >')
+                    clientSocket.sendall(data)
+                self.tell('X', port)
+                clientSocket.close()
+        except Exception as e:
+            self.log('tfunc:', e)
+    
     def usage(self, name):
         print(f'Usage: {name} [options] [address] [port]')
 

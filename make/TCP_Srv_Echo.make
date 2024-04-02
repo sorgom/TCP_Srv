@@ -49,6 +49,13 @@ ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werr
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werror -Wall
 ALL_LDFLAGS += $(LDFLAGS) -pthread
 
+else ifeq ($(config),vsmall)
+OBJDIR = obj/gcc/vsmall
+DEFINES += -DDEBUG -DVERBOSE -DSELECT_MILLI_SECONDS=1000 -DREAD_BUFFER_SIZE=16
+ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werror -Wall
+ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werror -Wall
+ALL_LDFLAGS += $(LDFLAGS) -pthread
+
 endif
 
 # Per File Configurations

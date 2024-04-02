@@ -10,11 +10,15 @@
 --      - verbose output
 --      - debug infos
 --      - no optimization
+--  - vsmall:
+--      - same as verbose
+--      - but with small buffer sizes (16 bytes)
+--      - and long select timeout (1 second)
 --  ============================================================
 --  created by Manfred Sorgo
 
 workspace 'TCP_Srv_Echo'
-    configurations { 'silent', 'verbose' }
+    configurations { 'silent', 'verbose', 'vsmall' }
     language 'C++'
     optimize 'On'
 
@@ -29,6 +33,15 @@ workspace 'TCP_Srv_Echo'
     
         filter { 'configurations:verbose' }
             defines { 'DEBUG', 'VERBOSE' }
+            symbols 'On'
+            optimize 'Off'
+
+        filter { 'configurations:vsmall' }
+            defines { 
+                'DEBUG', 'VERBOSE',
+                'SELECT_MILLI_SECONDS=1000',
+                'READ_BUFFER_SIZE=16'
+             }
             symbols 'On'
             optimize 'Off'
 

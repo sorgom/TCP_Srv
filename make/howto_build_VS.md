@@ -33,15 +33,7 @@ Done (41ms)..
 ````
 ## 2) build executables in VS
 - open solution (TCP_Srv/make/TCP_Srv_Echo.sln)
-- select a configuration
-    - _silent_: 
-        - no debug
-        - no output
-        - optimized for speed
-    - _verbose_:
-        - verbose output
-        - debug infos
-        - no optimization
+- select a configuration (see header of premake5.lua)
 - build (and run)
 
 ## 3) VS keyboard shortcuts
