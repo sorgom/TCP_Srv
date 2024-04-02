@@ -42,9 +42,12 @@ public:
     void run(INT32 argc, const CONST_C_STRING* argv);
 
 protected:
+    //  timeval seconds
     constexpr static UINT32 tmSec = SELECT_MILLI_SECONDS / 1000;
+    //  timeval microseconds
     constexpr static UINT32 tmMic = (SELECT_MILLI_SECONDS % 1000) * 1000;
-    constexpr static UINT32 buffSize = READ_BUFFER_SIZE;
+    //  (minimum) buffer size
+    constexpr static UINT32 buffSize = READ_BUFFER_SIZE < 4 ? 4 : READ_BUFFER_SIZE;
     using Buffer = CHAR[buffSize];
     
     //  process received data
@@ -68,6 +71,8 @@ private:
     void startThread(SOCKET clientSocket);
     //  decrease thread count, reset thread number when count is 0    
     void endOfThread();
+    //  display current number of threads
+    void displayThreads() const;
 };
 
 #endif // _H

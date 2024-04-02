@@ -13,7 +13,7 @@ $> make help
 Usage: make [config=name] [target]
 
 CONFIGURATIONS:
-  silent
+  prod
   verbose
   vsmall
 

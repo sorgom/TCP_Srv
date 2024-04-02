@@ -187,6 +187,7 @@ void TCP_Srv_Base::startThread(SOCKET clientSocket)
     ++mCnt;
     ++mNum;
     std::thread(&TCP_Srv_Base::tm, this, clientSocket, mNum).detach();
+    displayThreads();
 }
 
 void TCP_Srv_Base::endOfThread()
@@ -200,5 +201,13 @@ void TCP_Srv_Base::endOfThread()
             mNum = 0;
             TRACE("--- no clients ---")
         }
+        displayThreads();
     }
+}
+
+void TCP_Srv_Base::displayThreads() const
+{
+#ifndef VERBOSE
+    cout << "threads:" << setw(6) << mCnt << '\r';
+#endif
 }

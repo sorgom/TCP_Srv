@@ -14,8 +14,9 @@ class TCP_Srv_Echo : public TCP_Srv_Base
 public:
     inline TCP_Srv_Echo() = default;
 protected:
-    //  simple implementation of process: echo received data
-    //  trace received data if TRACE_ON is defined
+    //  simple implementation of process: 
+    //  - echo received data
+    //  - trace received data if VERBOSE is defined
     void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) final;
 };
 
