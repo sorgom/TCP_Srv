@@ -18,7 +18,11 @@ jobs:
         steps:
         -   name: Checkout repository
             uses: actions/checkout@v3
-        -   name: build config "silent"
-            run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=silent
+        -   name: prepare build
+            run: chmod 755 make/build.sh
+        -   name: build config "prod"
+            run: make/build.sh -p
         -   name: build config "verbose"
-            run: cd make; git clean -dxf .; make -j -f TCP_Srv_Echo.make config=verbose
+            run: cd make; git clean -dxf .; make -j config=verbose
+        -   name: build config "vsmall"
+            run: cd make; git clean -dxf .; make -j config=vsmall

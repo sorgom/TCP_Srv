@@ -2,11 +2,12 @@
 
 help()
 {
-    echo "build TCP_Srv_Echo sample"
+    echo "Usage: $(basename $0) options"
     echo "options:"
-    echo "-S  config; silent"
-    echo "-V  config: verbose"
-    echo "-v  config: vsmall"
+    echo "-p  config; prod"
+    echo "-v  config: verbose"
+    echo "-s  config: vsmall"
+    echo ""
     echo "-k  keep untracked artifacts"
     echo "-r  run binary"
     echo "-h  this help"
@@ -14,26 +15,27 @@ help()
 }
 
 keep=
-conf=silent
+conf=
 run=
-while getopts hkVSvr option; do
+while getopts hkrspv option; do
     case $option in
-        (V)  conf=verbose;;
-        (S)  conf=silent;;
-        (v)  conf=vsmall;;
+        (v)  conf=verbose;;
+        (p)  conf=prod;;
+        (s)  conf=vsmall;;
         (k)  keep=1;;
         (r)  run=1;;
         (h)  help;;
     esac
 done
 
-cd $(dirname $0)
+if test -z $conf; then help; fi
 
-git clean -dxf bin 2>/dev/null >/dev/null
+cd $(dirname $0)
 
 if test -z $keep; then git clean -dxf . 2>/dev/null >/dev/null; fi
 
-make -j -f TCP_Srv_Echo.make config=$conf
+make config=$conf clean
+make -j config=$conf
 
 if test $? -ne 0; then exit 1; fi
 

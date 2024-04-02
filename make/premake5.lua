@@ -2,7 +2,7 @@
 --  premake5 build rules
 --  TCP_Srv_Echo based on TCP_Srv_Base
 --  configurations: 
---  - silent:
+--  - prod:
 --      - no debug
 --      - no output
 --      - optimized for speed
@@ -18,7 +18,7 @@
 --  created by Manfred Sorgo
 
 workspace 'TCP_Srv_Echo'
-    configurations { 'silent', 'verbose', 'vsmall' }
+    configurations { 'prod', 'verbose', 'vsmall' }
     language 'C++'
     optimize 'On'
 
@@ -26,7 +26,7 @@ workspace 'TCP_Srv_Echo'
         kind 'ConsoleApp'
         files { '../code/TCP_Srv_*.cpp' }
 
-        filter { 'configurations:silent' }
+        filter { 'configurations:prod' }
             defines { 'NDEBUG' }
             symbols 'Off'
             optimize 'Speed'

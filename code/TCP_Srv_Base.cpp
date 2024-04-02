@@ -36,46 +36,6 @@ using std::setw;
 #define TRACE_TM(MSG)
 #endif
 
-
-void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
-{
-    bool cont = true;
-    TRACE_TM("CON")
-
-    while(cont)
-    {
-        fd_set cset;
-        FD_ZERO(&cset);
-        FD_SET(clientSocket, &cset);
-        tval tv { tmSec, tmMic };
-        if (select(0, &cset, nullptr, nullptr, &tv) < 0)
-        {
-            TRACE_TM("ERR select")
-            cont = false;
-        }
-        else if (FD_ISSET(clientSocket, &cset))
-        {
-            Buffer buff;
-            size_t size = recv(clientSocket, buff, sizeof(Buffer), 0);
-            if (size > 0)
-            {
-                do {
-                    TRACE_TM("<- " << size)
-                    process(clientSocket, buff, size, nr);
-                    size = recv(clientSocket, buff, sizeof(Buffer), 0);
-                } while (size > 0);
-            }
-            else
-            {
-                TRACE_TM("EX")
-                cont = false;
-            }
-        }
-    }
-    closesocket(clientSocket);
-    endOfThread();
-}
-
 void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 {
     if (argc > 1)
@@ -180,6 +140,45 @@ void TCP_Srv_Base::run(const UINT16 port)
 #ifdef _WIN32
     WSACleanup();
 #endif
+}
+
+void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
+{
+    bool cont = true;
+    TRACE_TM("CON")
+
+    while(cont)
+    {
+        fd_set cset;
+        FD_ZERO(&cset);
+        FD_SET(clientSocket, &cset);
+        tval tv { tmSec, tmMic };
+        if (select(0, &cset, nullptr, nullptr, &tv) < 0)
+        {
+            TRACE_TM("ERR select")
+            cont = false;
+        }
+        else if (FD_ISSET(clientSocket, &cset))
+        {
+            Buffer buff;
+            size_t size = recv(clientSocket, buff, sizeof(Buffer), 0);
+            if (size > 0)
+            {
+                do {
+                    TRACE_TM("<- " << size)
+                    process(clientSocket, buff, size, nr);
+                    size = recv(clientSocket, buff, sizeof(Buffer), 0);
+                } while (size > 0);
+            }
+            else
+            {
+                TRACE_TM("EX")
+                cont = false;
+            }
+        }
+    }
+    closesocket(clientSocket);
+    endOfThread();
 }
 
 void TCP_Srv_Base::startThread(SOCKET clientSocket)

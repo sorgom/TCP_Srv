@@ -39,7 +39,7 @@ public:
     //  run with given port
     void run(UINT16 port = 8080);
     //  run with port from 1st CLI argument
-    void run(const INT32 argc, const CONST_C_STRING* const argv);
+    void run(INT32 argc, const CONST_C_STRING* argv);
 
 protected:
     constexpr static UINT32 tmSec = SELECT_MILLI_SECONDS / 1000;
