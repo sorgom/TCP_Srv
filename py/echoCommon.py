@@ -73,11 +73,11 @@ class EchoCommon(object):
     -h  this help
 syntax:                 | e.g.
     address             |
-    - ipv4  n.n.n.n     | 1.2.3.4
-    - ipv6  n:n:n:n:n:n | 1:2:3:4:5:6 
-    port    nn..        | 8080
-    loops   n..x        | 2x, 12X
-    threads n..t        | 5T, 11t
+    - ipv4  n.n.n.n     | 127.2.3.4
+    - ipv6  b:b:b:b:b:b | 1:0F::4:5:6 
+    port    1-5 digits  | 8080
+    loops   digits + X  | 2x, 12X
+    threads digits + T  | 5T, 11t
     message any other   | "hello world"
 """            
         )

@@ -125,12 +125,13 @@ void TCP_Srv_Base::run(const UINT16 port)
         cont = false;
     }
 
-    //  select and accept loop
+    //  display port if successful sofar
     if (cont)
     {
         cout << "port   :" << setw(6) << port << endl;
     }
 
+    //  select and accept loop
     while (cont)
     {
         //  select
@@ -138,6 +139,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         FD_ZERO(&lset);
         FD_SET(listenSocket, &lset);
         tval tv { tmSec, tmMic };
+
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
             cerr << "ERR listen select" << endl;
@@ -160,9 +162,8 @@ void TCP_Srv_Base::run(const UINT16 port)
             }
         }
     }
-    //  should not be reached:
-    //  clean up in case of error
-    if (listenSocket != INVALID_SOCKET)
+    //  only reached in case of error: clean up
+    if (not listenSocket < 0)
     {
         closesocket(listenSocket);
     }
@@ -173,39 +174,51 @@ void TCP_Srv_Base::run(const UINT16 port)
 
 void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
 {
-//  locally used mutex locked trace with thread number
-#ifdef VERBOSE
-#define TRACE_TM(MSG) { mutexlock lock(mMtxOut); TRACE(setw(3) << nr << ' ' << MSG) }
-#else
-#define TRACE_TM(MSG)
-#endif
+    //  locally used mutex locked trace macro with thread number
+    #ifdef VERBOSE
+    #define TRACE_TM(MSG) { mutexlock lock(mMtxOut); TRACE(setw(3) << nr << ' ' << MSG) }
+    #else
+    #define TRACE_TM(MSG)
+    #endif
 
-    bool cont = true;
+    
     TRACE_TM("CON")
 
+    //  indicator for continuation
+    bool cont = true;
+
+    //  select and receive loop
     while(cont)
     {
+        //  select
         fd_set cset;
         FD_ZERO(&cset);
         FD_SET(clientSocket, &cset);
         tval tv { tmSec, tmMic };
+
         if (select(0, &cset, nullptr, nullptr, &tv) < 0)
         {
             TRACE_TM("ERR select")
             cont = false;
         }
+        //  receive from client socket when select indicates read possible
         else if (FD_ISSET(clientSocket, &cset))
         {
             Buffer buff;
             size_t size = recv(clientSocket, buff, sizeof(Buffer), 0);
+            
+            //  if 1st recv delivers bytes client ist sending
             if (size > 0)
             {
+                //  continue recv until no more bytes are sent
                 do {
                     TRACE_TM("<- " << size)
                     process(clientSocket, buff, size, nr);
                     size = recv(clientSocket, buff, sizeof(Buffer), 0);
                 } while (size > 0);
             }
+            
+            //  otherwise client has closed connection
             else
             {
                 TRACE_TM("EX")
@@ -216,7 +229,8 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
     closesocket(clientSocket);
     endOfThread();
 
-#undef TRACE_TM
+    //  end of locally used trace macro
+    #undef TRACE_TM
 }
 
 void TCP_Srv_Base::startThread(SOCKET clientSocket)
