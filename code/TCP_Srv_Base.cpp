@@ -29,15 +29,11 @@ using std::regex, std::regex_match;
 #include <filesystem>
 using std::filesystem::path;
 
-//  verbosity
+//  general trace macro
 #ifdef VERBOSE
-//  general trace
 #define TRACE(MSG) cout << MSG << endl;
-//  mutex locked trace with thread number
-#define TRACE_TM(MSG) { mutexlock lock(mMtxOut); TRACE(setw(3) << nr << ' ' << MSG) }
 #else
 #define TRACE(MSG)
-#define TRACE_TM(MSG)
 #endif
 
 void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
@@ -82,7 +78,9 @@ void TCP_Srv_Base::run(const UINT16 port)
     TRACE("timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms")
     TRACE("buffer :" << setw(6) << buffSize << " bytes")
 
+    //  indicator for continuation
     bool cont = true;
+    //  listen socket
     SOCKET listenSocket = INVALID_SOCKET;
 
 #ifdef _WIN32
@@ -91,7 +89,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
-            cerr << "WSAStartup failed" << endl;
+            cerr << "ERR WSAStartup" << endl;
             cont = false;
         }
     }
@@ -102,7 +100,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (listenSocket < 0) 
         {
-            cerr << "socket failed" << endl;
+            cerr << "ERR socket" << endl;
             cont = false;
         }
     }
@@ -116,14 +114,14 @@ void TCP_Srv_Base::run(const UINT16 port)
 
         if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
         {
-            cerr << "bind failed: port " << port << endl;
+            cerr << "ERR bind: port " << port << endl;
             cont = false;
         }
     }
     //  listen to socket
     if (cont and (listen(listenSocket, SOMAXCONN) < 0))
     {
-        cerr << "listen failed" << endl;
+        cerr << "ERR listen" << endl;
         cont = false;
     }
 
@@ -142,7 +140,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         tval tv { tmSec, tmMic };
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
-            cerr << "listen select failed" << endl;
+            cerr << "ERR listen select" << endl;
             cont = false;
         }
 
@@ -152,7 +150,8 @@ void TCP_Srv_Base::run(const UINT16 port)
             SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
             if (clientSocket < 0) 
             {
-                cerr << "accept failed" << endl;
+                cerr << "ERR accept" << endl;
+                cont = false;
             }
             //  start thread with client socket
             else
@@ -174,6 +173,13 @@ void TCP_Srv_Base::run(const UINT16 port)
 
 void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
 {
+//  locally used mutex locked trace with thread number
+#ifdef VERBOSE
+#define TRACE_TM(MSG) { mutexlock lock(mMtxOut); TRACE(setw(3) << nr << ' ' << MSG) }
+#else
+#define TRACE_TM(MSG)
+#endif
+
     bool cont = true;
     TRACE_TM("CON")
 
@@ -209,6 +215,8 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
     }
     closesocket(clientSocket);
     endOfThread();
+
+#undef TRACE_TM
 }
 
 void TCP_Srv_Base::startThread(SOCKET clientSocket)
@@ -240,4 +248,16 @@ void TCP_Srv_Base::displayThreads() const
 #ifndef VERBOSE
     cout << "threads:" << setw(6) << mCnt << '\r' << flush;
 #endif
+}
+
+void TCP_Srv_Base::help(const std::string&& argv0) const
+{
+    cout 
+        << endl
+        << "usage : " << argv0 << " [-h] [port]";
+    addusage(cout);
+    cout << endl
+        << "-h    : this help" << endl
+        << "port  : 2-5 digits, default: " << defPort << endl;
+    addhelp(cout);
 }

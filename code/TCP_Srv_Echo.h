@@ -20,11 +20,13 @@ protected:
     //  - trace received data if VERBOSE is defined
     void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) final;
 
-    //  handle unmatched argument (as locale to set)
+    //  handle unused argument as locale to set
+    //      does not make a big difference with gcc linux
+    //      but with msvc windows
     bool handlearg(CONST_C_STRING argv) final;
 
-    //  display help
-    void help(const std::string&& argv0) const final;
+    void addusage(std::ostream& os) const final;
+    void addhelp(std::ostream& os) const final;
 
 };
 

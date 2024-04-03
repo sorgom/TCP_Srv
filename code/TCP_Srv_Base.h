@@ -56,15 +56,19 @@ protected:
     virtual void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) = 0;
 
     //  handle unmatched argument
-    //  to be implemented by derived class
+    //  can be implemented by derived class
     inline virtual bool handlearg(CONST_C_STRING argv)
     {
         return true;
     }
 
-    //  display help with called filename (rvalue reference for efficiency)   
-    //  to be implemented by derived class
-    inline virtual void help(const std::string&& argv0) const {}
+    //  add usage item to help
+    //  can be implemented by derived class
+    virtual void addusage(std::ostream& os) const {}
+
+    //  add help item to help
+    //  can be implemented by derived class
+    virtual void addhelp(std::ostream& os) const {}
 
     //  prevent from parallel output
     std::mutex mMtxOut;
@@ -72,6 +76,12 @@ protected:
 
     //  default port
     constexpr static UINT16 defPort = 8080;
+
+#ifdef VERBOSE
+    constexpr static bool verbose = true;
+#else
+    constexpr static bool verbose = false;
+#endif
 
 private:
     //  thread method
@@ -90,6 +100,8 @@ private:
     //  (unless VERBOSE is defined)
     void displayThreads() const;
 
+    //  display help with called filename (rvalue reference for efficiency)   
+    void help(const std::string&& argv0) const;
 };
 
 #endif // _H
