@@ -31,13 +31,14 @@
 using SOCKET = INT32;
 #endif
 #include <mutex>
+#include <string>
 
 class TCP_Srv_Base
 {
 public:
     inline TCP_Srv_Base() = default;
     //  run with given port
-    void run(UINT16 port = 8080);
+    void run(UINT16 port = defPort);
     //  run with port from 1st CLI argument
     void run(INT32 argc, const CONST_C_STRING* argv);
 
@@ -53,10 +54,24 @@ protected:
     //  process received data
     //  must be implemented by derived class
     virtual void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) = 0;
-    
+
+    //  handle unmatched argument
+    //  to be implemented by derived class
+    inline virtual bool handlearg(CONST_C_STRING argv)
+    {
+        return true;
+    }
+
+    //  display help with called filename (rvalue reference for efficiency)   
+    //  to be implemented by derived class
+    inline virtual void help(const std::string&& argv0) const {}
+
     //  prevent from parallel output
     std::mutex mMtxOut;
     using mutexlock = std::unique_lock<std::mutex>;
+
+    //  default port
+    constexpr static UINT16 defPort = 8080;
 
 private:
     //  thread method
@@ -72,7 +87,9 @@ private:
     //  decrease thread count, reset thread number when count is 0    
     void endOfThread();
     //  display current number of threads
+    //  (unless VERBOSE is defined)
     void displayThreads() const;
+
 };
 
 #endif // _H

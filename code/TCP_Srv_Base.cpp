@@ -19,11 +19,15 @@ using tval = timeval;
 #include <stdlib.h> // atoi
 
 #include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
+using std::cout, std::cerr, std::endl, std::flush;
 #include <iomanip>
 using std::setw;
+
+#include <regex>
+using std::regex, std::regex_match;
+
+#include <filesystem>
+using std::filesystem::path;
 
 //  verbosity
 #ifdef VERBOSE
@@ -40,16 +44,37 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 {
     if (argc > 1)
     {
-        run(static_cast<UINT16>(atoi(argv[1])));
+        //  check for help: exit if called
+        regex rxHelp {"^-[hH]$"};
+        for (INT32 n = 1; n < argc; ++n)
+        {
+            if (regex_match(argv[n], rxHelp))
+            {
+                help(path(argv[0]).filename().string());
+                return;
+            }
+        }
+        //  no help call in args - check for port or other args
+        UINT16 port = defPort;
+        regex rxPort {"^\\d{2,5}$"};
+        for (INT32 n = 1; n < argc; ++n)
+        {
+            if (regex_match(argv[n], rxPort))
+            {
+                port = static_cast<UINT16>(atoi(argv[n]));
+            }
+            else if (not handlearg(argv[n]))
+            {
+                return;
+            }
+        }
+        run(port);
     }
     else
     {
         run();
     }
 }
-
-//  trace error and exit the processing
-#define ERR_X(MSG) cerr << endl << MSG << endl; cont = false;
 
 void TCP_Srv_Base::run(const UINT16 port)
 {
@@ -66,7 +91,8 @@ void TCP_Srv_Base::run(const UINT16 port)
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
-            ERR_X("WSAStartup failed")
+            cerr << "WSAStartup failed" << endl;
+            cont = false;
         }
     }
 #endif
@@ -76,7 +102,8 @@ void TCP_Srv_Base::run(const UINT16 port)
         listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (listenSocket < 0) 
         {
-            ERR_X("socket failed")
+            cerr << "socket failed" << endl;
+            cont = false;
         }
     }
     //  bind socket to port
@@ -89,13 +116,15 @@ void TCP_Srv_Base::run(const UINT16 port)
 
         if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
         {
-            ERR_X("bind failed: port " << port)
+            cerr << "bind failed: port " << port << endl;
+            cont = false;
         }
     }
     //  listen to socket
     if (cont and (listen(listenSocket, SOMAXCONN) < 0))
     {
-        ERR_X("listen failed")
+        cerr << "listen failed" << endl;
+        cont = false;
     }
 
     //  select and accept loop
@@ -113,7 +142,8 @@ void TCP_Srv_Base::run(const UINT16 port)
         tval tv { tmSec, tmMic };
         if (select(0, &lset, nullptr, nullptr, &tv) < 0)
         {
-            ERR_X("listen select failed")
+            cerr << "listen select failed" << endl;
+            cont = false;
         }
 
         //  accept to new client socket if listen socket is set 
@@ -122,7 +152,7 @@ void TCP_Srv_Base::run(const UINT16 port)
             SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
             if (clientSocket < 0) 
             {
-                ERR_X("accept failed")
+                cerr << "accept failed" << endl;
             }
             //  start thread with client socket
             else
@@ -208,6 +238,6 @@ void TCP_Srv_Base::endOfThread()
 void TCP_Srv_Base::displayThreads() const
 {
 #ifndef VERBOSE
-    cout << "threads:" << setw(6) << mCnt << '\r';
+    cout << "threads:" << setw(6) << mCnt << '\r' << flush;
 #endif
 }
