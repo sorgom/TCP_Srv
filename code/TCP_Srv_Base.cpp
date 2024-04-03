@@ -163,7 +163,7 @@ void TCP_Srv_Base::run(const UINT16 port)
         }
     }
     //  only reached in case of error: clean up
-    if (not listenSocket < 0)
+    if (listenSocket >= 0)
     {
         closesocket(listenSocket);
     }
