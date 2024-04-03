@@ -180,7 +180,6 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
     #else
     #define TRACE_TM(MSG)
     #endif
-
     
     TRACE_TM("CON")
 
