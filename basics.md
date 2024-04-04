@@ -36,14 +36,18 @@ int select(
   const timeval * timeout // [in] 
 );
 ```
-### server socket
+### server with threads
 ```
+      listenSocket
+        |
       socket()
         |
       bind()  
         |
       listen()
 ________|
+|       |
+|     fd_set
 |       |
 |     FD_ZERO()
 |       | 
@@ -55,7 +59,7 @@ ________|
 |      |    |
 |      N    Y
 |______|    |
-|          accept() -> client socket thread
+|          accept() -> clientSocket, thread(clientSocket)
 |___________|
 ```
 
@@ -91,4 +95,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.sendall(b'Hello, world')
     data = s.recv(1024)
     print(f'received {data}')
+```
+### server with threads
+```
+      listenSocket
+        |
+      socket()
+        |
+      bind()  
+        |
+      listen()
+________|
+|       |
+|     select()
+|      |   |
+|      N   Y
+|______|   |
+|          |-> thread(listenSocket), accept() -> clientSocket
+|__________|
 ```

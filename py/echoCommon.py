@@ -4,50 +4,57 @@
 #   created by Manfred Sorgo
 import re
 import socket
-from getopt import getopt
 from sys import argv
 from logging import info as logout, basicConfig as logconfig, INFO 
 from os.path import basename
 
 class EchoCommon(object):
+    #   init with cli arguments regardless of order
     def __init__(self, *args):
-        self.verbose = False
-        opts, args = getopt(args, 'vh')
-        for o, v in opts:
-            if o == '-v':
-                self.verbose = True
-            elif o == '-h':
-                self.help()
-
+        #   ipv4 address
         rx4 = re.compile(r'^\d+(?:\.\d+){3}$')
+        #   ipv6 address
         rx6 = re.compile(r'^[0-9a-fA-F]*(?:\:[0-9a-fA-F]*){5}$')
+        #   port
         rxP = re.compile(r'^\d+$')
-        rxN = re.compile(r'^(\d+)[xX]+$')
+        #   loops
+        rxL = re.compile(r'^(\d+)[xX]+$')
+        #   threads
         rxT = re.compile(r'^(\d+)[tT]+$')
+        #   verbose
+        rxV = re.compile(r'^-[vV]+$')
+        #   help
+        rxH = re.compile(r'^-[hH]+$')
+
         self.prot = socket.AF_INET
         self.addr = '127.0.0.1'
         self.port = 8080
         self.loops = 1
         self.threads = 1
         self.message = 'hello world'    
+        verbose = False
         for arg in args:
-            if rx4.match(arg):
+            if rxH.match(arg):
+                self.help()
+            elif rx4.match(arg):
                 self.self.addr = arg
             elif rx6.match(arg):
                 self.addr = arg
                 self.prot = socket.AF_INET6
             elif rxP.match(arg):
                 self.port = int(arg)
-            elif rxN.match(arg):
-                self.loops = int(rxN.match(arg).group(1))
+            elif rxL.match(arg):
+                self.loops = int(rxL.match(arg).group(1))
             elif rxT.match(arg):
                 self.threads = int(rxT.match(arg).group(1))
+            elif rxV.match(arg):
+                verbose = True
             else:
                 self.message = arg
 
-        logconfig(format="%(asctime)s %(message)s", level=INFO, datefmt="%H:%M:%S")
+        logconfig(format='%(asctime)s %(message)s', level=INFO, datefmt='%H:%M:%S')
         
-        if self.verbose:
+        if verbose:
             self.tell = self.log 
             print()
             print('addr:', self.addr)

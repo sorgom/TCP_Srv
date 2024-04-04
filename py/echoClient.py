@@ -20,13 +20,12 @@ class EchoClient(EchoCommon):
     
     def tfunc(self, nr:int):
         try:
-            self.tell("%02d connecting ..." % nr)
             s = self.getsocket()
             s.connect((self.addr, self.port))
-            self.tell("%02d connected" % nr)
+            self.tell('%02d CON' % nr)
             for n in range(self.loops):
                 if n > 0: sleep(0.25)
-                self.tell("%02d %d / %d send: %s" % (nr, n + 1, self.loops, self.getmessage()))
+                self.tell('%02d %d / %d send: %s' % (nr, n + 1, self.loops, self.getmessage()))
                 s.sendall(self.getdata())
                 s.settimeout(None)
                 rdata = bytes()
@@ -36,15 +35,15 @@ class EchoClient(EchoCommon):
                         rdata += data
                         s.settimeout(0.125)
                         data = s.recv(1024)
-                except Exception as t:
+                except Exception:
                     pass
                 finally:
                     if len(rdata) > 0:
-                        self.tell("%02d %d / %d recv: %s" % (nr, n + 1, self.loops, self.decode(rdata)))
-            self.tell("%02d closing" % nr)
+                        self.tell('%02d %d / %d recv: %s' % (nr, n + 1, self.loops, self.decode(rdata)))
             s.close()
+            self.tell('%02d EX' % nr)
         except Exception as e:
-            self.log("%02d %s" % (nr, e))
+            self.log('%02d %s' % (nr, e))
 
     def decode(self, data:bytes) -> str:
         return data.decode()

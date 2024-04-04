@@ -27,7 +27,6 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #else
-#include <sys/socket.h>  
 using SOCKET = INT32;
 #endif
 #include <mutex>
@@ -57,31 +56,23 @@ protected:
 
     //  handle unmatched argument
     //  can be implemented by derived class
-    inline virtual bool handlearg(CONST_C_STRING argv)
+    inline virtual bool handlearg(CONST_C_STRING)
     {
         return true;
     }
 
     //  add usage item to help
     //  can be implemented by derived class
-    virtual void addusage(std::ostream& os) const {}
+    virtual void addusage(std::ostream&) const {}
 
     //  add help item to help
     //  can be implemented by derived class
-    virtual void addhelp(std::ostream& os) const {}
+    virtual void addhelp(std::ostream&) const {}
 
-    //  prevent from parallel output
-    std::mutex mMtxOut;
     using mutexlock = std::unique_lock<std::mutex>;
 
     //  default port
     constexpr static UINT16 defPort = 8080;
-
-#ifdef VERBOSE
-    constexpr static bool verbose = true;
-#else
-    constexpr static bool verbose = false;
-#endif
 
 private:
     //  thread method

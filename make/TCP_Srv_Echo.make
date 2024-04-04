@@ -71,9 +71,11 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/TCP_Srv_Base.o
 GENERATED += $(OBJDIR)/TCP_Srv_Echo.o
 GENERATED += $(OBJDIR)/TCP_Srv_Echo_main.o
+GENERATED += $(OBJDIR)/Trace.o
 OBJECTS += $(OBJDIR)/TCP_Srv_Base.o
 OBJECTS += $(OBJDIR)/TCP_Srv_Echo.o
 OBJECTS += $(OBJDIR)/TCP_Srv_Echo_main.o
+OBJECTS += $(OBJDIR)/Trace.o
 
 # Rules
 # #############################################
@@ -144,6 +146,9 @@ $(OBJDIR)/TCP_Srv_Echo.o: ../code/TCP_Srv_Echo.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/TCP_Srv_Echo_main.o: ../code/TCP_Srv_Echo_main.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Trace.o: ../code/Trace.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

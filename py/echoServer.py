@@ -1,5 +1,5 @@
 #   ============================================================
-#   TCP echo server
+#   multi thread TCP echo server
 #   ============================================================
 #   created by Manfred Sorgo
 
@@ -34,14 +34,14 @@ class EchoServer(EchoCommon):
             clientSocket, *x = listenSocket.accept()
             with clientSocket:
                 addr, port = clientSocket.getpeername()
-                self.tell('C', addr, port)
+                self.tell('CON', addr, port)
                 while True:
                     data = clientSocket.recv(1024)
                     if not data: break
                     self.tell(f'{port} < {data.decode()} >')
                     clientSocket.sendall(data)
-                self.tell('X', port)
                 clientSocket.close()
+                self.tell('EX', port)
         except Exception as e:
             self.log('tfunc:', e)
     

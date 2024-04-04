@@ -1,4 +1,9 @@
 #include "TCP_Srv_Echo.h"
+#include "Trace.h"
+
+#ifndef _WIN32
+#include <sys/socket.h>  
+#endif
 
 #include <iostream>
 using std::cout, std::cerr, std::endl;
@@ -7,16 +12,17 @@ using std::cout, std::cerr, std::endl;
 
 bool TCP_Srv_Echo::handlearg(const CONST_C_STRING argv)
 {
+    bool ok = true;
     if (std::setlocale(LC_ALL, argv) == nullptr)
     {
-        cerr << "setlocale failed: " << argv << endl;
-        return false;
+        cerr << "ERR setlocale: " << argv << endl;
+        ok = false;
     }
-    if constexpr (verbose)
+    else
     {
-        cout << "locale : " << argv << endl;
+        Trace() << "locale : " << argv << endl;
     }
-    return true;
+    return ok;
 }
 
 void TCP_Srv_Echo::addusage(std::ostream& os) const
@@ -33,14 +39,14 @@ void TCP_Srv_Echo::process(const SOCKET clientSocket, Buffer buff, const size_t 
 {
     send(clientSocket, buff, size, 0);
  
-    if constexpr (verbose)
+    if constexpr (Trace::verbose)
     {
-        mutexlock lock(mMtxOut);
-        cout << std::setw(3) << nr << " <- ";
+        TraceLock tr(nr);
+        tr << "<- ";
         for (size_t n = 0; n < size; ++n)
         {
-            cout << buff[n];
+            tr << buff[n];
         }
-        cout << " ->" << endl;       
+        tr << " ->" << endl;       
     }
 }

@@ -1,4 +1,5 @@
 #include "TCP_Srv_Base.h"
+#include "Trace.h"
 
 #ifdef _WIN32
 //  timevel can be used const in VS
@@ -6,6 +7,7 @@ using tval = const timeval;
 //  required lib for Winsock
 #pragma comment(lib, "ws2_32")
 #else
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #define closesocket close
@@ -15,7 +17,6 @@ using tval = timeval;
 #endif
 
 #include <thread>
-#include <ciso646>
 #include <stdlib.h> // atoi
 
 #include <iostream>
@@ -29,17 +30,11 @@ using std::regex, std::regex_match;
 #include <filesystem>
 using std::filesystem::path;
 
-//  general trace macro
-#ifdef VERBOSE
-#define TRACE(MSG) cout << MSG << endl;
-#else
-#define TRACE(MSG)
-#endif
-
 void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 {
     if (argc > 1)
     {
+        bool cont = true;
         //  check for help: exit if called
         regex rxHelp {"^-[hH]$"};
         for (INT32 n = 1; n < argc; ++n)
@@ -47,24 +42,32 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
             if (regex_match(argv[n], rxHelp))
             {
                 help(path(argv[0]).filename().string());
-                return;
+                cont = false;
+                break;
             }
         }
         //  no help call in args - check for port or other args
-        UINT16 port = defPort;
-        regex rxPort {"^\\d{2,5}$"};
-        for (INT32 n = 1; n < argc; ++n)
+        if (cont)
         {
-            if (regex_match(argv[n], rxPort))
+            UINT16 port = defPort;
+            regex rxPort {"^\\d{2,5}$"};
+            for (INT32 n = 1; n < argc; ++n)
             {
-                port = static_cast<UINT16>(atoi(argv[n]));
+                if (regex_match(argv[n], rxPort))
+                {
+                    port = static_cast<UINT16>(atoi(argv[n]));
+                }
+                else if (not handlearg(argv[n]))
+                {
+                    cont = false;
+                    break;
+                }
             }
-            else if (not handlearg(argv[n]))
+            if (cont)
             {
-                return;
+                run(port);
             }
         }
-        run(port);
     }
     else
     {
@@ -75,8 +78,9 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 void TCP_Srv_Base::run(const UINT16 port)
 {
     std::cout << "..." << endl;
-    TRACE("timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms")
-    TRACE("buffer :" << setw(6) << buffSize << " bytes")
+    Trace()
+        << "timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms" << endl
+        << "buffer :" << setw(6) << buffSize << " bytes" << endl;
 
     //  indicator for continuation
     bool cont = true;
@@ -174,14 +178,9 @@ void TCP_Srv_Base::run(const UINT16 port)
 
 void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
 {
-    //  locally used mutex locked trace macro with thread number
-    #ifdef VERBOSE
-    #define TRACE_TM(MSG) { mutexlock lock(mMtxOut); TRACE(setw(3) << nr << ' ' << MSG) }
-    #else
-    #define TRACE_TM(MSG)
-    #endif
-    
-    TRACE_TM("CON")
+    {
+        TraceLock(nr) << "CON" << endl;
+    }
 
     //  indicator for continuation
     bool cont = true;
@@ -197,7 +196,7 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
 
         if (select(0, &cset, nullptr, nullptr, &tv) < 0)
         {
-            TRACE_TM("ERR select")
+            TraceLock(nr) << "ERR select" << endl;
             cont = false;
         }
         //  receive from client socket when select indicates read possible
@@ -211,7 +210,7 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
             {
                 //  continue recv until no more bytes are sent
                 do {
-                    TRACE_TM("<- " << size)
+                    TraceLock(nr) << "<- " << size << endl;
                     process(clientSocket, buff, size, nr);
                     size = recv(clientSocket, buff, sizeof(Buffer), 0);
                 } while (size > 0);
@@ -220,16 +219,13 @@ void TCP_Srv_Base::tm(SOCKET clientSocket, const UINT32 nr)
             //  otherwise client has closed connection
             else
             {
-                TRACE_TM("EX")
+                TraceLock(nr) << "EX" << endl;
                 cont = false;
             }
         }
     }
     closesocket(clientSocket);
     endOfThread();
-
-    //  end of locally used trace macro
-    #undef TRACE_TM
 }
 
 void TCP_Srv_Base::startThread(SOCKET clientSocket)
@@ -250,7 +246,7 @@ void TCP_Srv_Base::endOfThread()
         if (mCnt == 0) 
         {
             mNum = 0;
-            TRACE("--- no clients ---")
+            Trace() << "--- no clients ---" << endl;
         }
         displayThreads();
     }
@@ -258,9 +254,10 @@ void TCP_Srv_Base::endOfThread()
 
 void TCP_Srv_Base::displayThreads() const
 {
-#ifndef VERBOSE
-    cout << "threads:" << setw(6) << mCnt << '\r' << flush;
-#endif
+    if constexpr (not Trace::verbose)
+    {
+        cout << "threads:" << setw(6) << mCnt << '\r' << flush;
+    }
 }
 
 void TCP_Srv_Base::help(const std::string&& argv0) const

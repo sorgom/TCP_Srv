@@ -23,7 +23,7 @@ workspace 'TCP_Srv_Echo'
 
     project 'TCP_Srv_Echo'
         kind 'ConsoleApp'
-        files { '../code/TCP_Srv_*.cpp' }
+        files { '../code/*.cpp' }
 
         filter { 'configurations:prod' }
             defines { 'NDEBUG' }
@@ -45,9 +45,9 @@ workspace 'TCP_Srv_Echo'
             optimize 'Off'
 
         filter { 'action:vs*' }
-            buildoptions { '/std:c++17 /W4 /wd4100' }
-            objdir 'obj/vs/'
             warnings 'high'
+            buildoptions { '/std:c++17 /W4' }
+            objdir 'obj/vs/'
             targetdir 'exe'
 
         filter { 'action:gmake*' }
