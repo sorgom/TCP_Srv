@@ -38,7 +38,7 @@ public:
     inline TCP_Srv_Base() = default;
     //  run with given port
     void run(UINT16 port = defPort);
-    //  run with port from 1st CLI argument
+    //  run with CLI arguments
     void run(INT32 argc, const CONST_C_STRING* argv);
 
 protected:
@@ -54,27 +54,28 @@ protected:
     //  must be implemented by derived class
     virtual void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) = 0;
 
-    //  handle unmatched argument
+    //  handle unmatched CLI argument
     //  can be implemented by derived class
     inline virtual bool handlearg(CONST_C_STRING)
     {
         return true;
     }
 
-    //  add usage item to help
+    //  add usage item to std::out
     //  can be implemented by derived class
-    virtual void addusage(std::ostream&) const {}
+    inline virtual void addusage() const {}
 
-    //  add help item to help
+    //  add help item to std::out
     //  can be implemented by derived class
-    virtual void addhelp(std::ostream&) const {}
+    inline virtual void addhelp() const {}
 
-    using mutexlock = std::unique_lock<std::mutex>;
-
-    //  default port
-    constexpr static UINT16 defPort = 8080;
+    //  other tasks to be done in main loop
+    //  can be implemented by derived class
+    inline virtual void other_tasks() {}
 
 private:
+    //  default port
+    constexpr static UINT16 defPort = 8080;
     //  thread method
     void tm(SOCKET clientSocket, UINT32 nr);
     //  thread count

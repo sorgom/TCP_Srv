@@ -17,11 +17,12 @@
 --  ============================================================
 --  created by Manfred Sorgo
 
-workspace 'TCP_Srv_Echo'
+workspace 'EchoSrv'
     configurations { 'prod', 'verbose', 'vsmall' }
     language 'C++'
+    targetsuffix  '_%{cfg.name}'
 
-    project 'TCP_Srv_Echo'
+    project 'EchoSrv'
         kind 'ConsoleApp'
         files { '../code/*.cpp' }
 

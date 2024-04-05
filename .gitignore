@@ -44,11 +44,9 @@ exe
 *.vcxproj.*
 *.vcxproj
 *.sln
-*.make
+# *.make
 
 # general
 tmp.*
 tmp_.*
 
-# sample
-!TCP_Srv*.make

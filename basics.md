@@ -58,9 +58,12 @@ ________|
 |     FD_ISSET()
 |      |    |
 |      N    Y
-|______|    |
-|          accept() -> clientSocket, thread(clientSocket)
-|___________|
+|      |    |
+|      |   accept() -> clientSocket, thread(clientSocket)
+|      |_____|
+|         |
+|       other_tasks()
+|_________|
 ```
 
 ## threads

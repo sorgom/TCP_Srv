@@ -25,9 +25,10 @@ protected:
     //      but with msvc windows
     bool handlearg(CONST_C_STRING argv) final;
 
-    void addusage(std::ostream& os) const final;
-    void addhelp(std::ostream& os) const final;
+    void addusage() const final;
+    void addhelp() const final;
 
+    void other_tasks() final;
 };
 
 #endif // _H

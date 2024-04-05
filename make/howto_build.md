@@ -9,7 +9,7 @@
 - call make -j with a configuration
 
 ````shell
-$> make help
+TCP_Srv/make$> make help
 Usage: make [config=name] [target]
 
 CONFIGURATIONS:
@@ -21,10 +21,10 @@ TARGETS:
    all (default)
    clean
 
-$> make config=vsmall clean
+TCP_Srv/make$> make config=vsmall clean
 Cleaning TCP_Srv_Echo
 
-$> make -j config=vsmall
+TCP_Srv/make$> make -j config=vsmall
 ==== Building TCP_Srv_Echo (vsmall) ====
 Creating obj/gcc/vsmall
 Creating bin
@@ -33,7 +33,44 @@ TCP_Srv_Echo.cpp
 TCP_Srv_Echo_main.cpp
 Linking TCP_Srv_Echo
 ````
+### use build.sh
+call help
+````shell
+TCP_Srv/make$> ./build.sh -h
+Usage: build.sh options [port] [locale]
+options:
+configurations (select one):
+  -p  config; prod
+  -v  config: verbose
+  -s  config: vsmall
+behaviour:
+  -c  clean all untracked artifacts
+  -r  run binary with [port] [locale]
+  -h  this help
+````
+build (and run) e.g.:
+- configuration _verbose_
+- port 8090
+- locale de_DE.UTF-8
+````shell
+TCP_Srv/make$> ./build.sh -vr 8090 de_DE.UTF-8
+==== Building TCP_Srv_Echo (verbose) ====
+Creating obj/gcc/verbose
+Creating bin
+TCP_Srv_Base.cpp
+TCP_Srv_Echo.cpp
+TCP_Srv_Echo_main.cpp
+Trace.cpp
+Linking TCP_Srv_Echo
 
+starting bin/EchoSrv_verbose 8090 de_DE.UTF-8
+
+locale : de_DE.UTF-8
+...
+timeout:    10 ms
+buffer :  1024 bytes
+port   :  8090
+````
 
 ## Visual Studio build
 ### preconditions
@@ -64,12 +101,12 @@ e.g. VS 2019
 TCP_Srv/make$> premake5 vs2019
 Building configurations...
 Running action 'vs2019'...
-Generated TCP_Srv_Echo.sln...
-Generated TCP_Srv_Echo.vcxproj...
-Done (41ms)..
+Generated EchoSrv.sln...
+Generated EchoSrv.vcxproj...
+Done (42ms).
 ````
 ### 2) build executables in VS
-- open solution (TCP_Srv/make/TCP_Srv_Echo.sln)
+- open solution (TCP_Srv/make/EchoSrv.sln)
 - select a configuration (see also header of premake5.lua)
 - build (and run)
 
