@@ -18,7 +18,7 @@
 #include <streambuf>
 
 //  NullBuffer and NullStream are used to prevent from output
-//  thanks to ChatGPT for this
+//  thanks to ChatGPT for the basics of this
 class NullBuffer : public std::streambuf 
 {
 public:
@@ -31,54 +31,60 @@ public:
 class NullStream : public std::ostream
 {
 public:
-    inline NullStream() : std::ostream(&buffer) {}
     constexpr static bool isOn = false;
+    inline NullStream(UINT32 = 0) : std::ostream(&mBuffer) {}
 private:
-    NullBuffer buffer;
+    NullBuffer mBuffer;
 };
 
 //  ostream class acting as std::cout
-//  thanks to ChatGPT for this
+//  thanks to ChatGPT for the basics of this
 class OutStream : public std::ostream
 {
 public:
-    inline OutStream() : std::ostream(std::cout.rdbuf()) {}
     constexpr static bool isOn = true;
+    inline OutStream() : std::ostream(std::cout.rdbuf()) {}
 };
 
-//  class Trace acts as std::cout if VERBOSE is defined
-//  otherwise as NullStream with no output
-#ifdef VERBOSE
-using Trace = OutStream;    
-#else
-using Trace = NullStream;
-#endif
-
-//  class TraceLock behaves like class Trace
-//  in addition, if VERBOSE is defined
-//  parallel output (of other TraceLock objects)
+//  class LockedStream behaves like class OutStream
+//  in addition, parallel output (of other LockedStream objects)
 //  is blocked by a mutex lock within object scope
-//  use brackets to limit scope of TraceLock object
+//  use brackets to limit scope of LockedStream object
 //  to avoid deadlocks
 //  e.g. 
-//  { TraceLock() << "hello world" << std::endl; }
-class TraceLock : public Trace
+//  { LockedStream() << "hello world" << std::endl; }
+class LockedStream : public OutStream
 {
 public:
-#ifdef VERBOSE
-    TraceLock() : Trace(), mLock(mMutex) 
-    {}
-    //  start trace with number
-    TraceLock(const UINT32 nr) : TraceLock() 
+    LockedStream() : OutStream(), mLock(mMutex) {}
+    //  since threading is involved, a (thread) number can be added to the output
+    LockedStream(const UINT32 nr) : LockedStream()
     {
-        *this << std::setw(3) << nr << ' '; 
+        *this << std::setw(3) << nr << ' ';
     }
 private:
     static std::mutex mMutex;
-    std::unique_lock<std::mutex> mLock;    
-#else
-    TraceLock(const UINT32 = 0) {}
-#endif
+    std::unique_lock<std::mutex> mLock;
 };
+
+//  if VERBOSE is defined
+//  -  class Trace is OutStream
+//  -  class TraceLock is LockedStream  
+//  otherwise
+//  -  class Trace is NullStream
+//  -  class TraceLock is NullStream
+//  avoid macro usage
+//  use:
+//      constexpr if (Trace::verbose) { ... }
+//      constexpr if (not Trace::verbose) { ... }
+//  to eliminate greater bits of output code from compilation
+//  in opposite to macros there won't be compiler warnings of unused variables
+#ifdef VERBOSE
+using Trace = OutStream;
+using TraceLock = LockedStream;    
+#else
+using Trace = NullStream;
+using TraceLock = NullStream;
+#endif
 
 #endif // _H

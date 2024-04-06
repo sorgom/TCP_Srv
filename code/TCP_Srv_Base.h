@@ -41,9 +41,6 @@ public:
     //  run with CLI arguments
     void run(INT32 argc, const CONST_C_STRING* argv);
 
-    virtual void cleanup();
-
-
 protected:
     inline TCP_Srv_Base() = default;
     //  timeval seconds
@@ -81,7 +78,7 @@ private:
     //  default port
     constexpr static UINT16 defPort = 8080;
     //  listen socket
-    SOCKET mListenSocket = INVALID_SOCKET;
+    SOCKET listenSocket = INVALID_SOCKET;
     //  client thread method
     void handleClient(SOCKET clientSocket, UINT32 nr);
     //  thread count

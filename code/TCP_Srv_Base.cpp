@@ -78,8 +78,8 @@ void TCP_Srv_Base::run(const UINT16 port)
     //  create socket
     if (ok)
     {
-        mListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (mListenSocket < 0) 
+        listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (listenSocket < 0) 
         {
             cerr << "ERR socket" << endl;
             ok = false;
@@ -93,14 +93,14 @@ void TCP_Srv_Base::run(const UINT16 port)
         addr.sin_addr.s_addr = INADDR_ANY;
         addr.sin_port = htons(port);
 
-        if (bind(mListenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
+        if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
         {
             cerr << "ERR bind: port " << port << endl;
             ok = false;
         }
     }
     //  listen to socket
-    if (ok and (listen(mListenSocket, SOMAXCONN) < 0))
+    if (ok and (listen(listenSocket, SOMAXCONN) < 0))
     {
         cerr << "ERR listen" << endl;
         ok = false;
@@ -125,10 +125,10 @@ void TCP_Srv_Base::run(const UINT16 port)
             //  select
             fd_set lset;
             FD_ZERO(&lset);
-            FD_SET(mListenSocket, &lset);
+            FD_SET(listenSocket, &lset);
             timeval tv { tmSec, tmMic};
 
-            if (select(mListenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
+            if (select(listenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
             {
                 cerr << "ERR listen select" << endl;
                 ok = false;
@@ -136,9 +136,9 @@ void TCP_Srv_Base::run(const UINT16 port)
 
 
             //  accept to new client socket if listen socket is set 
-            else if (FD_ISSET(mListenSocket, &lset))
+            else if (FD_ISSET(listenSocket, &lset))
             {
-                SOCKET clientSocket = accept(mListenSocket, nullptr, nullptr);
+                SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
 
                 if (clientSocket < 0) 
                 {
@@ -158,14 +158,9 @@ void TCP_Srv_Base::run(const UINT16 port)
         otherTasks();
     }
     //  only reached in case of error: clean up
-}
-
-void TCP_Srv_Base::cleanup()
-{
-    Trace() << endl << "cleanup" << endl;
-    if (mListenSocket >= 0)
+    if (listenSocket >= 0)
     {
-        closesocket(mListenSocket);
+        closesocket(listenSocket);
     }
 #ifdef _WIN32
     WSACleanup();
