@@ -12,7 +12,11 @@
 class TCP_Srv_Echo : public TCP_Srv_Base
 {
 public:
-    inline TCP_Srv_Echo() = default;
+    static TCP_Srv_Echo& instance();
+
+
+    TCP_Srv_Echo(const TCP_Srv_Echo&) = delete;
+    TCP_Srv_Echo& operator=(const TCP_Srv_Echo&) = delete;
 
 protected:
     //  simple implementation of process: 
@@ -23,12 +27,14 @@ protected:
     //  handle unused argument as locale to set
     //      does not make a big difference with gcc linux
     //      but with msvc windows
-    bool handlearg(CONST_C_STRING argv) final;
+    bool handleArg(CONST_C_STRING argv) final;
 
-    void addusage() const final;
-    void addhelp() const final;
+    void addUsage() const final;
+    void addHelp() const final;
 
-    void other_tasks() final;
+    void otherTasks() final;
+private:
+    inline TCP_Srv_Echo() = default;
 };
 
 #endif // _H

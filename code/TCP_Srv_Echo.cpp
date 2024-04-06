@@ -7,9 +7,17 @@
 
 #include <iostream>
 using std::cerr, std::endl;
+#include <iomanip>
+using std::setw;
 #include <clocale>
 
-bool TCP_Srv_Echo::handlearg(const CONST_C_STRING argv)
+TCP_Srv_Echo& TCP_Srv_Echo::instance()
+{
+    static TCP_Srv_Echo instance;
+    return instance;
+}
+
+bool TCP_Srv_Echo::handleArg(const CONST_C_STRING argv)
 {
     bool ok = true;
     //  locale only required if trace is on
@@ -25,12 +33,12 @@ bool TCP_Srv_Echo::handlearg(const CONST_C_STRING argv)
     return ok;
 }
 
-void TCP_Srv_Echo::addusage() const
+void TCP_Srv_Echo::addUsage() const
 {
     Trace() << " [locale]";
 }
 
-void TCP_Srv_Echo::addhelp() const
+void TCP_Srv_Echo::addHelp() const
 {
     Trace() << "locale: see setlocale" << endl;
 }
@@ -51,11 +59,17 @@ void TCP_Srv_Echo::process(const SOCKET clientSocket, Buffer buff, const size_t 
     }
 }
 
-#include <chrono>
-#include <thread>
-#include <ctime>
-void TCP_Srv_Echo::other_tasks()
+void TCP_Srv_Echo::otherTasks()
 {
-    { TraceLock() << "    other tasks: " << (std::time(nullptr) % 500) << endl; }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    if constexpr (Trace::isOn)
+    {
+        static UINT32 cnt = 0;
+        static UINT32 dsp = 0;
+        if (++cnt == 100)
+        {
+            cnt = 0; 
+            ++dsp;
+            TraceLock() << "--- other tasks " << setw(5) << dsp << "00" << endl;
+        }
+    }
 }

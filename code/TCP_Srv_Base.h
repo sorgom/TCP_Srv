@@ -28,6 +28,7 @@
 #include <winsock2.h>
 #else
 using SOCKET = INT32;
+constexpr SOCKET INVALID_SOCKET = -1;
 #endif
 #include <mutex>
 #include <string>
@@ -35,13 +36,16 @@ using SOCKET = INT32;
 class TCP_Srv_Base
 {
 public:
-    inline TCP_Srv_Base() = default;
     //  run with given port
     void run(UINT16 port = defPort);
     //  run with CLI arguments
     void run(INT32 argc, const CONST_C_STRING* argv);
 
+    virtual void cleanup();
+
+
 protected:
+    inline TCP_Srv_Base() = default;
     //  timeval seconds
     constexpr static UINT32 tmSec = SELECT_MILLI_SECONDS / 1000;
     //  timeval microseconds
@@ -56,28 +60,30 @@ protected:
 
     //  handle unmatched CLI argument
     //  can be implemented by derived class
-    inline virtual bool handlearg(CONST_C_STRING)
+    inline virtual bool handleArg(CONST_C_STRING)
     {
         return true;
     }
 
     //  add usage item to std::out
     //  can be implemented by derived class
-    inline virtual void addusage() const {}
+    inline virtual void addUsage() const {}
 
     //  add help item to std::out
     //  can be implemented by derived class
-    inline virtual void addhelp() const {}
+    inline virtual void addHelp() const {}
 
     //  other tasks to be done in main loop
     //  can be implemented by derived class
-    inline virtual void other_tasks() {}
+    inline virtual void otherTasks() {}
 
 private:
     //  default port
     constexpr static UINT16 defPort = 8080;
-    //  thread method
-    void tm(SOCKET clientSocket, UINT32 nr);
+    //  listen socket
+    SOCKET mListenSocket = INVALID_SOCKET;
+    //  client thread method
+    void handleClient(SOCKET clientSocket, UINT32 nr);
     //  thread count
     UINT32 mCnt = 0;
     //  thread number

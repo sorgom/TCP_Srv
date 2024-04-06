@@ -32,45 +32,27 @@ class NullStream : public std::ostream
 {
 public:
     inline NullStream() : std::ostream(&buffer) {}
-
+    constexpr static bool isOn = false;
 private:
     NullBuffer buffer;
 };
 
-//  class Trace acts as std::cout if VERBOSE is defined
-//  otherwise as NullStream with no output
-class Trace
+//  ostream class acting as std::cout
+//  thanks to ChatGPT for this
+class OutStream : public std::ostream
 {
 public:
-//  avoid macro usage
-//  use:
-//      constexpr if (Trace::isOn) { ... }
-//      constexpr if (not Trace::isOn) { ... }
-//  to eliminate code from compilation
-//  in opposite to macros there won't be compiler warnings of unused variables
-#ifdef VERBOSE
+    inline OutStream() : std::ostream(std::cout.rdbuf()) {}
     constexpr static bool isOn = true;
-#else
-    constexpr static bool isOn = false;
-#endif
-    inline Trace() = default;
-
-#ifdef VERBOSE
-    template <typename T>
-    inline std::ostream& operator<<(const T& t)
-    {
-        return std::cout << t;
-    }
-#else
-    template <typename T>
-    inline std::ostream& operator<<(const T& t)
-    {
-        return mNull << t;
-    }
-private:
-    static NullStream mNull;
-#endif
 };
+
+//  class Trace acts as std::cout if VERBOSE is defined
+//  otherwise as NullStream with no output
+#ifdef VERBOSE
+using Trace = OutStream;    
+#else
+using Trace = NullStream;
+#endif
 
 //  class TraceLock behaves like class Trace
 //  in addition, if VERBOSE is defined

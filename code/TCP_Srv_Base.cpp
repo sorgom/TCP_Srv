@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #define closesocket close
-constexpr SOCKET INVALID_SOCKET = -1;
 #endif
 
 #include <thread>
@@ -48,7 +47,7 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
         for (INT32 n = 1; cont and n < argc; ++n)
         {
             if (regex_match(argv[n], rxPort)) port = static_cast<UINT16>(atoi(argv[n]));
-            else cont = handlearg(argv[n]);
+            else cont = handleArg(argv[n]);
         }
         if (cont) run(port);
     }
@@ -64,9 +63,7 @@ void TCP_Srv_Base::run(const UINT16 port)
 
     //  indicator for continuation
     bool ok = true;
-    //  listen socket
-    SOCKET listenSocket = INVALID_SOCKET;
-
+ 
 #ifdef _WIN32
     // check for Windows Sockets version 2.2
     {
@@ -81,8 +78,8 @@ void TCP_Srv_Base::run(const UINT16 port)
     //  create socket
     if (ok)
     {
-        listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (listenSocket < 0) 
+        mListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (mListenSocket < 0) 
         {
             cerr << "ERR socket" << endl;
             ok = false;
@@ -96,22 +93,26 @@ void TCP_Srv_Base::run(const UINT16 port)
         addr.sin_addr.s_addr = INADDR_ANY;
         addr.sin_port = htons(port);
 
-        if (bind(listenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
+        if (bind(mListenSocket, (const sockaddr*)&addr, sizeof(addr)) < 0)
         {
             cerr << "ERR bind: port " << port << endl;
             ok = false;
         }
     }
     //  listen to socket
-    if (ok and (listen(listenSocket, SOMAXCONN) < 0))
+    if (ok and (listen(mListenSocket, SOMAXCONN) < 0))
     {
         cerr << "ERR listen" << endl;
         ok = false;
     }
 
     //  display port if successful sofar
-    if (ok) cout << "port   :" << setw(6) << port << endl;
-
+    if (ok) 
+    {
+        cout << "port   :" << setw(6) << port << endl;
+        displayThreads();
+    }
+    
     //  select and other tasks loop
     while (ok)
     {
@@ -124,10 +125,10 @@ void TCP_Srv_Base::run(const UINT16 port)
             //  select
             fd_set lset;
             FD_ZERO(&lset);
-            FD_SET(listenSocket, &lset);
+            FD_SET(mListenSocket, &lset);
             timeval tv { tmSec, tmMic};
 
-            if (select(listenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
+            if (select(mListenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
             {
                 cerr << "ERR listen select" << endl;
                 ok = false;
@@ -135,9 +136,9 @@ void TCP_Srv_Base::run(const UINT16 port)
 
 
             //  accept to new client socket if listen socket is set 
-            else if (FD_ISSET(listenSocket, &lset))
+            else if (FD_ISSET(mListenSocket, &lset))
             {
-                SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
+                SOCKET clientSocket = accept(mListenSocket, nullptr, nullptr);
 
                 if (clientSocket < 0) 
                 {
@@ -148,25 +149,30 @@ void TCP_Srv_Base::run(const UINT16 port)
                 else
                 {
                     startThread(clientSocket);
-                    // clients = true;
+                    clients = true;
                 }
             }
         } while (clients);
 
         //  other tasks
-        other_tasks();
+        otherTasks();
     }
     //  only reached in case of error: clean up
-    if (listenSocket >= 0)
+}
+
+void TCP_Srv_Base::cleanup()
+{
+    Trace() << endl << "cleanup" << endl;
+    if (mListenSocket >= 0)
     {
-        closesocket(listenSocket);
+        closesocket(mListenSocket);
     }
 #ifdef _WIN32
     WSACleanup();
 #endif
 }
 
-void TCP_Srv_Base::tm(const SOCKET clientSocket, const UINT32 nr)
+void TCP_Srv_Base::handleClient(const SOCKET clientSocket, const UINT32 nr)
 {
     //  brackets required for scope of TraceLock object
     { TraceLock(nr) << "CON" << endl; }
@@ -188,7 +194,7 @@ void TCP_Srv_Base::startThread(SOCKET clientSocket)
     mutexlock lock(mMtxStat);
     ++mCnt;
     ++mNum;
-    std::thread(&TCP_Srv_Base::tm, this, clientSocket, mNum).detach();
+    std::thread(&TCP_Srv_Base::handleClient, this, clientSocket, mNum).detach();
     displayThreads();
 }
 
@@ -220,9 +226,9 @@ void TCP_Srv_Base::help(const std::string&& argv0) const
     cout 
         << endl
         << "usage : " << argv0 << " [-h] [port]";
-    addusage();
+    addUsage();
     cout << endl
         << "-h    : this help" << endl
         << "port  : 2-5 digits, default: " << defPort << endl;
-    addhelp();
+    addHelp();
 }
