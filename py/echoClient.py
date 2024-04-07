@@ -11,8 +11,8 @@ class EchoClient(EchoCommon):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def usage(self, name):
-        print(f'Usage: {name} [options] [address] [port] [message] [loops] [threads]')
+    def usage(self, name) -> str:
+        return super().usage(name) + ' [message] [loops] [threads]'
         
     def run(self):
          for n in range(self.threads):

@@ -74,8 +74,11 @@ class EchoCommon(object):
     def silent(self, *args):
         pass
 
+    def usage(self, name) -> str:
+        return f'Usage: {name} [options] [address] [port]'
+    
     def help(self):
-        self.usage(basename(argv[0]))
+        print(self.usage(basename(argv[0])))
         print(
 """options:
     -v  verbose

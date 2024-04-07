@@ -44,9 +44,6 @@ class EchoServer(EchoCommon):
                 self.tell('EX', port)
         except Exception as e:
             self.log('tfunc:', e)
-    
-    def usage(self, name):
-        print(f'Usage: {name} [options] [address] [port]')
 
 if __name__ == '__main__':
     from sys import argv
