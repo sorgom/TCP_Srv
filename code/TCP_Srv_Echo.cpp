@@ -11,6 +11,10 @@ using std::cerr, std::endl;
 using std::setw;
 #include <clocale>
 
+#include <chrono>
+
+using std::string;
+
 TCP_Srv_Echo& TCP_Srv_Echo::instance()
 {
     static TCP_Srv_Echo instance;
@@ -32,15 +36,15 @@ bool TCP_Srv_Echo::handleArg(const CONST_C_STRING argv)
     }
     return ok;
 }
-
-void TCP_Srv_Echo::addUsage() const
+string TCP_Srv_Echo::usage(const CONST_C_STRING argv0) const
 {
-    Trace() << " [locale]";
+    return TCP_Srv_Base::usage(argv0) + " [locale]";
 }
 
-void TCP_Srv_Echo::addHelp() const
+string TCP_Srv_Echo::help() const
 {
-    Trace() << "locale: see setlocale" << endl;
+    return TCP_Srv_Base::help() + 
+        "locale: e.g. de_DE.UTF-8\n";
 }
 
 void TCP_Srv_Echo::process(const SOCKET clientSocket, Buffer buff, const size_t size, const UINT32 nr)
@@ -63,13 +67,19 @@ void TCP_Srv_Echo::otherTasks()
 {
     if constexpr (Trace::isOn)
     {
-        static UINT32 cnt = 0;
-        static UINT32 dsp = 0;
-        if (++cnt == 100)
+        using hClock = std::chrono::high_resolution_clock;
+        constexpr static auto per = 5000;
+        constexpr static auto num = SELECT_MILLI_SECONDS > per ? 1 : per / SELECT_MILLI_SECONDS;
+        static auto start = hClock::now();
+        static auto cnt = 0;
+        if (++cnt == num)
         {
-            cnt = 0; 
-            ++dsp;
-            TraceLock() << "--- other tasks " << setw(5) << dsp << "00" << endl;
+            const auto now = hClock::now();
+            const auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+            const auto avrg = (dur.count() + num / 2) / num; 
+            TraceLock() << "-   other tasks every " << avrg << " ms" << endl;
+            cnt = 0;
+            start = now;
         }
     }
 }

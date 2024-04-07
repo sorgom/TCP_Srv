@@ -1,6 +1,18 @@
 #include "server.h"
 
-TCPServer::TCPServer(int port) : port(port), running(false) {}
+#ifdef _WIN32
+//  required lib for Winsock
+#pragma comment(lib, "ws2_32")
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#define closesocket close
+#endif
+
+using std::cerr, std::cout, std::endl;
+
+TCPServer::TCPServer(uint16_t port) : port(port), running(false) {}
 
 TCPServer::~TCPServer() {
     Stop();
@@ -9,9 +21,21 @@ TCPServer::~TCPServer() {
 void TCPServer::Start() {
     running = true;
 
-    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket == -1) {
-        std::cerr << "Error creating socket\n";
+#ifdef _WIN32
+    // check for Windows Sockets version 2.2
+    {
+        WSADATA wsaData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+        {
+            cerr << "ERR WSAStartup" << endl;
+            return;
+        }
+    }
+#endif
+
+    serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (serverSocket == INVALID_SOCKET) {
+        cerr << "Error creating socket" << endl;
         return;
     }
 
@@ -21,12 +45,12 @@ void TCPServer::Start() {
     serverAddr.sin_port = htons(port);
 
     if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
-        std::cerr << "Bind failed\n";
+        cerr << "Bind failed" << endl;
         return;
     }
 
     if (listen(serverSocket, 5) < 0) {
-        std::cerr << "Listen failed\n";
+        cerr << "Listen failed" << endl;
         return;
     }
 
@@ -36,20 +60,22 @@ void TCPServer::Start() {
 
 void TCPServer::Stop() {
     running = false;
-    close(serverSocket);
+    closesocket(serverSocket);
 
+#ifdef _WIN32
+    WSACleanup();
+#endif
     for (auto& thread : clientThreads) {
         thread.join();
     }
+    clientThreads.clear();
 }
 
 void TCPServer::Listen() {
     while (running) {
-        sockaddr_in clientAddr;
-        socklen_t clientAddrLen = sizeof(clientAddr);
-        int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientAddrLen);
+        SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
         if (clientSocket < 0) {
-            std::cerr << "Accept failed\n";
+            if (running) cerr << "Accept failed" << endl;
             continue;
         }
 
@@ -58,7 +84,7 @@ void TCPServer::Listen() {
     }
 }
 
-void TCPServer::HandleClient(int clientSocket) {
+void TCPServer::HandleClient(SOCKET clientSocket) {
     // Handle client communication here
     // For demonstration, just echo received messages back to the client
     char buffer[1024];
@@ -67,5 +93,6 @@ void TCPServer::HandleClient(int clientSocket) {
         send(clientSocket, buffer, bytesRead, 0);
     }
 
-    close(clientSocket);
+    closesocket(clientSocket);
 }
+

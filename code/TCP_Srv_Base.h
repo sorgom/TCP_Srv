@@ -62,13 +62,11 @@ protected:
         return true;
     }
 
-    //  add usage item to std::out
-    //  can be implemented by derived class
-    inline virtual void addUsage() const {}
+    //  usage line string with argv0
+    virtual std::string usage(CONST_C_STRING argv0) const;
 
-    //  add help item to std::out
-    //  can be implemented by derived class
-    inline virtual void addHelp() const {}
+    //  help text string
+    virtual std::string help() const;
 
     //  other tasks to be done in main loop
     //  can be implemented by derived class
@@ -77,8 +75,6 @@ protected:
 private:
     //  default port
     constexpr static UINT16 defPort = 8080;
-    //  listen socket
-    SOCKET listenSocket = INVALID_SOCKET;
     //  client thread method
     void handleClient(SOCKET clientSocket, UINT32 nr);
     //  thread count
@@ -96,7 +92,7 @@ private:
     void displayThreads() const;
 
     //  display help with called filename (rvalue reference for efficiency)   
-    void help(const std::string&& argv0) const;
+    void showHelp(CONST_C_STRING argv0) const;
 };
 
 #endif // _H

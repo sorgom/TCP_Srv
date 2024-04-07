@@ -9,26 +9,26 @@ ifndef verbose
 endif
 
 ifeq ($(config),chatgpt)
-  EchoSrv_config = chatgpt
+  EchoSrvGPT_config = chatgpt
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := EchoSrv
+PROJECTS := EchoSrvGPT
 
 .PHONY: all clean help $(PROJECTS) 
 
 all: $(PROJECTS)
 
-EchoSrv:
-ifneq (,$(EchoSrv_config))
-	@echo "==== Building EchoSrv ($(EchoSrv_config)) ===="
-	@${MAKE} --no-print-directory -C . -f EchoSrv.make config=$(EchoSrv_config)
+EchoSrvGPT:
+ifneq (,$(EchoSrvGPT_config))
+	@echo "==== Building EchoSrvGPT ($(EchoSrvGPT_config)) ===="
+	@${MAKE} --no-print-directory -C . -f EchoSrvGPT.make config=$(EchoSrvGPT_config)
 endif
 
 clean:
-	@${MAKE} --no-print-directory -C . -f EchoSrv.make clean
+	@${MAKE} --no-print-directory -C . -f EchoSrvGPT.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -39,6 +39,6 @@ help:
 	@echo "TARGETS:"
 	@echo "   all (default)"
 	@echo "   clean"
-	@echo "   EchoSrv"
+	@echo "   EchoSrvGPT"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

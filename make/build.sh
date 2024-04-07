@@ -1,6 +1,20 @@
 #!/bin/bash
 
-configs="prod verbose vsmall"
+#   extract all configurations from make help
+getcfgs()
+{
+    take=0
+    for item in $(make help); do
+        if [[ $item =~ CONFIG.*: ]]; then take=1
+        elif [[ $item =~ : ]]; then take=0    
+        elif test $take -eq 1; then 
+            cfgs="$cfgs $item"
+            cfgh="$cfgh, $item"
+        fi
+    done
+    cfgs=${cfgs:1}
+    cfgh=${cfgh:2}
+}
 
 help()
 {
@@ -8,11 +22,14 @@ help()
     echo "options:"
     echo "-c  clean ignored artifacts before"
     echo "-r  <config> run binary with [port] [locale]"
-    echo "    with <config> in $configs"
+    echo "    with <config> in $cfgh"
     echo "-p  premake5 makefiles"
     echo "-h  this help"
     exit
 }
+
+cd $(dirname $0)
+getcfgs
 
 run=
 clean=
@@ -21,7 +38,7 @@ while getopts cr:ph option; do
     case $option in
         (c)  clean=1;;
         (r)  run=$OPTARG;;
-        (p)  pre=1;;
+        (p)  pre=1;clean=1;;
         (h)  help;;
     esac
 done
@@ -43,15 +60,14 @@ function mkconfig
     return 0
 }
 
-cd $(dirname $0)
+if test ! -z $clean; then git clean -dfXq . ; fi
 
 if test ! -z $pre; then premake5 gmake2; fi
 
-if test ! -z $clean; then git clean -dfXq . ; fi
 echo building congigurations ...
 
 pids=()
-for config in $configs; do
+for config in $cfgs; do
     mkconfig $config & pids+=($!)
 done
 

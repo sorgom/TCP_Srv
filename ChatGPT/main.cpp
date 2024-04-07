@@ -2,7 +2,7 @@
 
 int main() {
     // Port number to listen on
-    int port = 8080;
+    const uint16_t port = 8080;
 
     // Create an instance of the server
     TCPServer server(port);

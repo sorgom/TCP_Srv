@@ -29,8 +29,12 @@ protected:
     //      but with msvc windows
     bool handleArg(CONST_C_STRING argv) final;
 
-    void addUsage() const final;
-    void addHelp() const final;
+    //  usage line string
+    std::string usage(CONST_C_STRING argv0) const final;
+
+    //  help text string
+    std::string help() const final;
+
 
     void otherTasks() final;
 private:

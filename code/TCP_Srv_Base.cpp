@@ -22,9 +22,7 @@ using std::setw;
 #include <regex>
 using std::regex, std::regex_match;
 
-#include <filesystem>
-using std::filesystem::path;
-
+using std::string;
 using mutexlock = std::unique_lock<std::mutex>;
 
 void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
@@ -39,7 +37,7 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
         {
             if (regex_match(argv[n], rxHelp))
             {
-                help(path(argv[0]).filename().string());
+                showHelp(argv[0]);
                 cont = false;
             }
         }
@@ -61,6 +59,8 @@ void TCP_Srv_Base::run(const UINT16 port)
         << "timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms" << endl
         << "buffer :" << setw(6) << buffSize << " bytes" << endl;
 
+    //  listen socket
+    SOCKET listenSocket = INVALID_SOCKET;
     //  indicator for continuation
     bool ok = true;
  
@@ -216,14 +216,23 @@ void TCP_Srv_Base::displayThreads() const
     }
 }
 
-void TCP_Srv_Base::help(const std::string&& argv0) const
+string TCP_Srv_Base::usage(const CONST_C_STRING argv0) const
+{
+    return "usage : " + string(argv0) + " [-h] [port]";
+}
+
+string TCP_Srv_Base::help() const
+{
+    return 
+        "-h    : this help\n"
+        "port  : 2-5 digits, default: " + std::to_string(defPort)
+        + "\n";
+}
+
+void TCP_Srv_Base::showHelp(const CONST_C_STRING argv0) const
 {
     cout 
         << endl
-        << "usage : " << argv0 << " [-h] [port]";
-    addUsage();
-    cout << endl
-        << "-h    : this help" << endl
-        << "port  : 2-5 digits, default: " << defPort << endl;
-    addHelp();
-}
+        << usage(argv0) << endl
+        << help();
+ }

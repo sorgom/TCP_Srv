@@ -13,7 +13,7 @@
 --  - vsmall:
 --      - same as verbose
 --      - but with small buffer sizes (8 bytes)
---      - and long select timeout (1 second)
+--      - and long select timeout (1000 ms)
 --  ============================================================
 --  created by Manfred Sorgo
 

@@ -1,20 +1,26 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <cstring>
 #include <iostream>
+#include <mutex>
 #include <thread>
 #include <vector>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
-#include <cstring>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/socket.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+using SOCKET = int;
+constexpr SOCKET INVALID_SOCKET = -1;
+#endif
+
 
 class TCPServer {
 public:
-    TCPServer(int port);
+    TCPServer(uint16_t port);
     ~TCPServer();
 
     void Start();
@@ -22,12 +28,12 @@ public:
 
 private:
     void Listen();
-    void HandleClient(int clientSocket);
+    void HandleClient(SOCKET clientSocket);
 
-    int port;
-    int serverSocket;
+    const uint16_t port;
+    SOCKET serverSocket;
     std::vector<std::thread> clientThreads;
-    std::atomic<bool> running;
+    std::atomic<bool> running = false;
 };
 
 #endif // SERVER_H
