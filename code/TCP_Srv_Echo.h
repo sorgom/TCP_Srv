@@ -12,9 +12,7 @@
 class TCP_Srv_Echo : public TCP_Srv_Base
 {
 public:
-    static TCP_Srv_Echo& instance();
-
-
+    inline TCP_Srv_Echo() = default;
     TCP_Srv_Echo(const TCP_Srv_Echo&) = delete;
     TCP_Srv_Echo& operator=(const TCP_Srv_Echo&) = delete;
 
@@ -26,7 +24,7 @@ protected:
 
     //  handle unused argument as locale to set
     //      does not make a big difference with gcc linux
-    //      but with msvc windows
+    //      but with msvc / windows
     bool handleArg(CONST_C_STRING argv) final;
 
     //  usage line string
@@ -35,10 +33,8 @@ protected:
     //  help text string
     std::string help() const final;
 
-
+    //  puts out the average time between calls
     void otherTasks() final;
-private:
-    inline TCP_Srv_Echo() = default;
 };
 
 #endif // _H

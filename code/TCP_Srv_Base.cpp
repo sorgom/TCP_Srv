@@ -55,7 +55,7 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
 void TCP_Srv_Base::run(const UINT16 port)
 {
     std::cout << "..." << endl;
-    Trace()
+    trace
         << "timeout:" << setw(6) << SELECT_MILLI_SECONDS << " ms" << endl
         << "buffer :" << setw(6) << buffSize << " bytes" << endl;
 
@@ -202,7 +202,7 @@ void TCP_Srv_Base::endOfThread()
         if (mCnt == 0) 
         {
             mNum = 0;
-            Trace() << "--- no clients ---" << endl;
+            trace << "--- no clients ---" << endl;
         }
         displayThreads();
     }
@@ -210,10 +210,7 @@ void TCP_Srv_Base::endOfThread()
 
 void TCP_Srv_Base::displayThreads() const
 {
-    if constexpr (not Trace::isOn)
-    {
-        cout << "threads:" << setw(6) << mCnt << '\r' << flush;
-    }
+    whisper << "threads:" << setw(6) << mCnt << '\r' << flush;
 }
 
 string TCP_Srv_Base::usage(const CONST_C_STRING argv0) const

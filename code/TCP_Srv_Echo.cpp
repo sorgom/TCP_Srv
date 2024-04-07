@@ -15,12 +15,6 @@ using std::setw;
 
 using std::string;
 
-TCP_Srv_Echo& TCP_Srv_Echo::instance()
-{
-    static TCP_Srv_Echo instance;
-    return instance;
-}
-
 bool TCP_Srv_Echo::handleArg(const CONST_C_STRING argv)
 {
     bool ok = true;
@@ -32,10 +26,11 @@ bool TCP_Srv_Echo::handleArg(const CONST_C_STRING argv)
             cerr << "ERR setlocale: " << argv << endl;
             ok = false;
         }
-        else Trace() << "locale : " << argv << endl;
+        else trace << "locale : " << argv << endl;
     }
     return ok;
 }
+
 string TCP_Srv_Echo::usage(const CONST_C_STRING argv0) const
 {
     return TCP_Srv_Base::usage(argv0) + " [locale]";

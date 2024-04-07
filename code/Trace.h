@@ -69,10 +69,12 @@ private:
 
 //  if VERBOSE is defined
 //  -  class Trace is OutStream
-//  -  class TraceLock is LockedStream  
+//  -  class TraceLock is LockedStream
+//  -  class Whisper is NullStream  
 //  otherwise
 //  -  class Trace is NullStream
 //  -  class TraceLock is NullStream
+//  -  class Whisper is OutStream  
 //  avoid macro usage
 //  use:
 //      constexpr if (Trace::verbose) { ... }
@@ -82,9 +84,14 @@ private:
 #ifdef VERBOSE
 using Trace = OutStream;
 using TraceLock = LockedStream;    
+using Whisper = NullStream;
 #else
 using Trace = NullStream;
 using TraceLock = NullStream;
+using Whisper = OutStream;
 #endif
+
+extern Trace trace;
+extern Whisper whisper;
 
 #endif // _H
