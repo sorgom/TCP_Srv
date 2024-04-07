@@ -22,7 +22,7 @@ TARGETS:
    clean
 
 TCP_Srv/make$> make config=vsmall clean
-Cleaning TCP_Srv_Echo
+Cleaning EchoSrv
 
 TCP_Srv/make$> make -j config=vsmall
 ==== Building TCP_Srv_Echo (vsmall) ====
@@ -31,7 +31,7 @@ Creating bin
 TCP_Srv_Base.cpp
 TCP_Srv_Echo.cpp
 TCP_Srv_Echo_main.cpp
-Linking TCP_Srv_Echo
+Linking EchoSrv
 ````
 ### use build.sh
 call help
@@ -39,36 +39,29 @@ call help
 TCP_Srv/make$> ./build.sh -h
 Usage: build.sh options [port] [locale]
 options:
-configurations (select one):
-  -p  config; prod
-  -v  config: verbose
-  -s  config: vsmall
-behaviour:
-  -c  clean all untracked artifacts
-  -r  run binary with [port] [locale]
-  -h  this help
+-c  clean ignored artifacts before
+-r  <config> run binary with [port] [locale]
+    with <config> in prod, verbose, vsmall
+-p  premake5 makefiles
+-h  this help
 ````
 build (and run) e.g.:
 - configuration _verbose_
 - port 8090
 - locale de_DE.UTF-8
 ````shell
-TCP_Srv/make$> ./build.sh -vr 8090 de_DE.UTF-8
-==== Building TCP_Srv_Echo (verbose) ====
-Creating obj/gcc/verbose
-Creating bin
-TCP_Srv_Base.cpp
-TCP_Srv_Echo.cpp
-TCP_Srv_Echo_main.cpp
-Trace.cpp
-Linking TCP_Srv_Echo
+TCP_Srv/make$> ./build.sh -cr vsmall 8090 de_DE.UTF-8
+building congigurations ...
+prod      [  5]
+vsmall    [  6]
+verbose   [  6]
 
-starting bin/EchoSrv_verbose 8090 de_DE.UTF-8
+starting bin/EchoSrv_vsmall 8090 de_DE.UTF-8
 
 locale : de_DE.UTF-8
 ...
-timeout:    10 ms
-buffer :  1024 bytes
+timeout:  1000 ms
+buffer :     8 bytes
 port   :  8090
 ````
 

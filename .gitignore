@@ -44,9 +44,7 @@ exe
 *.vcxproj.*
 *.vcxproj
 *.sln
-# *.make
 
 # general
 tmp.*
 tmp_.*
-

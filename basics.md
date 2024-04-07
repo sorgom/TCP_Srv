@@ -56,10 +56,10 @@ ________|
 |     select()
 |       |
 |     FD_ISSET()
-|      |    |
-|      N    Y
-|      |    |
-|      |   accept() -> clientSocket, thread(clientSocket)
+|      |     |
+|      N     Y
+|      |     |
+|      |    accept() -> clientSocket, thread(clientSocket)
 |      |_____|
 |         |
 |       other_tasks()
