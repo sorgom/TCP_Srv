@@ -17,6 +17,9 @@ else ifeq ($(config),verbose)
 else ifeq ($(config),vsmall)
   EchoSrv_config = vsmall
 
+else ifeq ($(config),gpt)
+  EchoSrv_config = gpt
+
 else
   $(error "invalid configuration $(config)")
 endif
@@ -43,6 +46,7 @@ help:
 	@echo "  prod"
 	@echo "  verbose"
 	@echo "  vsmall"
+	@echo "  gpt"
 	@echo ""
 	@echo "TARGETS:"
 	@echo "   all (default)"

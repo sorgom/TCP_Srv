@@ -1,4 +1,4 @@
-#include "server.h"
+#include "GPT_Srv.h"
 
 #ifdef _WIN32
 //  required lib for Winsock
@@ -10,6 +10,7 @@
 #define closesocket close
 #endif
 
+#include <iostream>
 using std::cerr, std::cout, std::endl;
 
 TCPServer::TCPServer(uint16_t port) : port(port), running(false) {}

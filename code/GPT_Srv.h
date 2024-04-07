@@ -1,12 +1,8 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef GPT_SRV_H
+#define GPT_SRV_H
 
 #include <atomic>
-#include <condition_variable>
 #include <cstdint>
-#include <cstring>
-#include <iostream>
-#include <mutex>
 #include <thread>
 #include <vector>
 

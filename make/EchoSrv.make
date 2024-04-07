@@ -60,6 +60,15 @@ ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werr
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O0 -g -std=c++17 -pedantic-errors -Werror -Wall
 ALL_LDFLAGS += $(LDFLAGS) -pthread
 
+else ifeq ($(config),gpt)
+TARGETDIR = bin
+TARGET = $(TARGETDIR)/EchoSrv_gpt
+OBJDIR = obj/gcc/gpt
+DEFINES += -DNDEBUG
+ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O3 -std=c++17 -pedantic-errors -Werror -Wall
+ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O3 -std=c++17 -pedantic-errors -Werror -Wall
+ALL_LDFLAGS += $(LDFLAGS) -s -pthread
+
 endif
 
 # Per File Configurations
@@ -72,6 +81,7 @@ endif
 GENERATED :=
 OBJECTS :=
 
+ifeq ($(config),prod)
 GENERATED += $(OBJDIR)/TCP_Srv_Base.o
 GENERATED += $(OBJDIR)/TCP_Srv_Echo.o
 GENERATED += $(OBJDIR)/TCP_Srv_Echo_main.o
@@ -80,6 +90,34 @@ OBJECTS += $(OBJDIR)/TCP_Srv_Base.o
 OBJECTS += $(OBJDIR)/TCP_Srv_Echo.o
 OBJECTS += $(OBJDIR)/TCP_Srv_Echo_main.o
 OBJECTS += $(OBJDIR)/Trace.o
+
+else ifeq ($(config),verbose)
+GENERATED += $(OBJDIR)/TCP_Srv_Base.o
+GENERATED += $(OBJDIR)/TCP_Srv_Echo.o
+GENERATED += $(OBJDIR)/TCP_Srv_Echo_main.o
+GENERATED += $(OBJDIR)/Trace.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Base.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Echo.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Echo_main.o
+OBJECTS += $(OBJDIR)/Trace.o
+
+else ifeq ($(config),vsmall)
+GENERATED += $(OBJDIR)/TCP_Srv_Base.o
+GENERATED += $(OBJDIR)/TCP_Srv_Echo.o
+GENERATED += $(OBJDIR)/TCP_Srv_Echo_main.o
+GENERATED += $(OBJDIR)/Trace.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Base.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Echo.o
+OBJECTS += $(OBJDIR)/TCP_Srv_Echo_main.o
+OBJECTS += $(OBJDIR)/Trace.o
+
+else ifeq ($(config),gpt)
+GENERATED += $(OBJDIR)/GPT_Srv.o
+GENERATED += $(OBJDIR)/GPT_main.o
+OBJECTS += $(OBJDIR)/GPT_Srv.o
+OBJECTS += $(OBJDIR)/GPT_main.o
+
+endif
 
 # Rules
 # #############################################
@@ -143,6 +181,7 @@ endif
 # File Rules
 # #############################################
 
+ifeq ($(config),prod)
 $(OBJDIR)/TCP_Srv_Base.o: ../code/TCP_Srv_Base.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -155,6 +194,44 @@ $(OBJDIR)/TCP_Srv_Echo_main.o: ../code/TCP_Srv_Echo_main.cpp
 $(OBJDIR)/Trace.o: ../code/Trace.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+
+else ifeq ($(config),verbose)
+$(OBJDIR)/TCP_Srv_Base.o: ../code/TCP_Srv_Base.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TCP_Srv_Echo.o: ../code/TCP_Srv_Echo.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TCP_Srv_Echo_main.o: ../code/TCP_Srv_Echo_main.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Trace.o: ../code/Trace.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+
+else ifeq ($(config),vsmall)
+$(OBJDIR)/TCP_Srv_Base.o: ../code/TCP_Srv_Base.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TCP_Srv_Echo.o: ../code/TCP_Srv_Echo.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TCP_Srv_Echo_main.o: ../code/TCP_Srv_Echo_main.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Trace.o: ../code/Trace.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+
+else ifeq ($(config),gpt)
+$(OBJDIR)/GPT_Srv.o: ../code/GPT_Srv.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/GPT_main.o: ../code/GPT_main.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+
+endif
 
 -include $(OBJECTS:%.o=%.d)
 ifneq (,$(PCH))
