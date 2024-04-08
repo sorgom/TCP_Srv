@@ -11,7 +11,7 @@
      listen()
  ______|
 |      |
-|    accept() -> clientSocket, thread(clientSocket)
+|    accept() -> clientSocket --> thread(clientSocket)
 |______|
 ```
 ### server with non blocking select and threads
@@ -39,7 +39,7 @@
 |      |     |
 |      N     Y
 |      |     |
-|      |    accept() -> clientSocket, thread(clientSocket)
+|      |   accept() -> clientSocket --> thread(clientSocket)
 |      |_____|
 |         |
 |       other_tasks()
@@ -48,24 +48,27 @@
 ### server with blocking accept in separate thread
 (ChatGPT solution)
 ```
- |
- |-----> thread
- |        |
- |      listenSocket
- |        |
- |      socket()
- |        |
- |      bind()  
- |        |
- |      listen()
- |    ____|
- |   |    |
- |   |  accept() -> clientSocket, thread(clientSocket)
- |   |____|
- |
+  |
+  |----> thread
+  |        |
+  |      listenSocket
+  |        |
+  |      socket()
+  |        |
+  |      bind()  
+  |        |
+  |      listen()
+  |    ____|
+  |   |    |
+  |   |  accept() -> clientSocket --> thread(clientSocket)
+  |   |____|
+  |
 wait for input
- |
+  |
 stop()
+  |
+join client threads
+  |
 ```
 ## python
 ### server with select and threads

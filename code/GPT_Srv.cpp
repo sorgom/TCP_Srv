@@ -1,3 +1,11 @@
+//  ============================================================
+//  code mainly from ChatGPT
+//  small modifications:
+//  - one code for both gcc and msvc
+//  - some type changes to avoid warnings
+//  - constness
+//  - using statements
+//  ============================================================
 #include "GPT_Srv.h"
 
 #ifdef _WIN32

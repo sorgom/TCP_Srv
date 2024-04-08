@@ -1,3 +1,13 @@
+//  ============================================================
+//  code mainly from ChatGPT
+//  small modifications:
+//  - one code for both gcc and msvc
+//  - some type changes to avoid warnings
+//  - removed unused headers
+//  - constness
+//  ============================================================
+
+#pragma once
 #ifndef GPT_SRV_H
 #define GPT_SRV_H
 

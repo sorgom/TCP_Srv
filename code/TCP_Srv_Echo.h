@@ -1,5 +1,5 @@
 //  ============================================================
-//  sample TCP echo server class
+//  sample TCP echo server class based on TCP_Srv_Base
 //  ============================================================
 //  created by Manfred Sorgo
 

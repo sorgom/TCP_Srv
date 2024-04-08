@@ -1,4 +1,8 @@
 #!/bin/bash
+#   ============================================================
+#   build and run script for gcc / make
+#   ============================================================
+#   created by Manfred Sorgo
 
 #   extract all configurations from make help
 getcfgs()
@@ -66,15 +70,21 @@ if test ! -z $pre; then premake5 gmake2; fi
 
 echo building congigurations ...
 
+#   start build all build tasks in background
+#   save pids in array
 pids=()
 for config in $cfgs; do
     mkconfig $config & pids+=($!)
 done
 
-ecode=0
+#   wait for all build tasks to finish
+#   and evaluate return code
+err=0
 for pid in ${pids[*]}; do
-    if ! wait $pid; then ecode=1; fi
+    if ! wait $pid; then err=1; fi
 done
+
+if test $err -ne 0; then exit 1; fi
 
 if test -z $run; then
     builds=$(ls bin/* 2>/dev/null)
@@ -84,12 +94,12 @@ if test -z $run; then
             echo - $b
         done
     fi
-    exit $ecode;
+    exit 0;
 fi
 
 bin=$(ls bin/*_$run 2>/dev/null | head -n 1)
 if test -z $bin; then
-    echo "no binary for config $run"
+    echo "no binary for config '$run'"
     exit 1
 fi
 

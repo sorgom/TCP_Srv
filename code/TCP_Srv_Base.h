@@ -42,7 +42,6 @@ public:
     void run(INT32 argc, const CONST_C_STRING* argv);
 
 protected:
-    inline TCP_Srv_Base() = default;
     //  timeval seconds
     constexpr static UINT32 tmSec = SELECT_MILLI_SECONDS / 1000;
     //  timeval microseconds
@@ -51,6 +50,9 @@ protected:
     constexpr static UINT32 buffSize = READ_BUFFER_SIZE < 4 ? 4 : READ_BUFFER_SIZE;
     using Buffer = CHAR[buffSize];
     
+    //  can only be constructed by derived class
+    inline TCP_Srv_Base() = default;
+
     //  process received data
     //  must be implemented by derived class
     virtual void process(const SOCKET clientSocket, Buffer buff, size_t size, UINT32 nr) = 0;
