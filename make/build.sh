@@ -106,4 +106,4 @@ fi
 echo ""
 echo "starting $bin $*"
 echo ""
-$bin $*
+exec $bin $*
