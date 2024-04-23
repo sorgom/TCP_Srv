@@ -36,7 +36,7 @@ TCP_Srv\make> premake5 vs2019
 ````
 ### 2) build executables in VS
 - open solution (TCP_Srv/make/EchoSrv.sln)
-- select a configuration (see also header of premake5.lua)
+- select a configuration (see also header of [premake5.lua](premake5.lua))
 - build (and run)
 
 ### 3) VS keyboard shortcuts

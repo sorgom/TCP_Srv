@@ -30,8 +30,9 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
     if (argc > 1)
     {
         UINT16 port = defPort;
-        regex rxPort {"^\\d{2,5}$"};
-        regex rxHelp {"^-[hH]$"};
+        const regex rxPort {"^\\d{2,5}$"};
+        const regex rxHelp {"^-[hH]$"};
+        const regex rxTest {"^test$", std::regex_constants::icase};  
         bool cont = true;
         for (INT32 n = 1; cont and n < argc; ++n)
         {
@@ -45,6 +46,7 @@ void TCP_Srv_Base::run(const INT32 argc, const CONST_C_STRING* const argv)
         for (INT32 n = 1; cont and n < argc; ++n)
         {
             if (regex_match(argv[n], rxPort)) port = static_cast<UINT16>(atoi(argv[n]));
+            else if (regex_match(argv[n], rxTest)) mTest = true;
             else cont = handleArg(argv[n]);
         }
         if (cont) run(port);
@@ -113,49 +115,52 @@ void TCP_Srv_Base::run(const UINT16 port)
         displayThreads();
     }
     
-    //  select and other tasks loop
-    while (ok)
+    if (not mTest)
     {
-
-    //  select and accept loop
-        bool clients = false;
-        do 
+        //  select and other tasks loop
+        while (ok)
         {
-            clients = false;
-            //  select
-            fd_set lset;
-            FD_ZERO(&lset);
-            FD_SET(listenSocket, &lset);
-            timeval tv { tmSec, tmMic};
 
-            if (select(listenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
+        //  select and accept loop
+            bool clients = false;
+            do 
             {
-                cerr << "ERR listen select" << endl;
-                ok = false;
-            }
+                clients = false;
+                //  select
+                fd_set lset;
+                FD_ZERO(&lset);
+                FD_SET(listenSocket, &lset);
+                timeval tv { tmSec, tmMic};
 
-
-            //  accept to new client socket if listen socket is set 
-            else if (FD_ISSET(listenSocket, &lset))
-            {
-                SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
-
-                if (clientSocket < 0) 
+                if (select(listenSocket + 1, &lset, nullptr, nullptr, &tv) < 0)
                 {
-                    cerr << "ERR accept" << endl;
+                    cerr << "ERR listen select" << endl;
                     ok = false;
                 }
-                //  start thread with client socket
-                else
-                {
-                    startThread(clientSocket);
-                    clients = true;
-                }
-            }
-        } while (clients);
 
-        //  other tasks
-        otherTasks();
+
+                //  accept to new client socket if listen socket is set 
+                else if (FD_ISSET(listenSocket, &lset))
+                {
+                    SOCKET clientSocket = accept(listenSocket, nullptr, nullptr);
+
+                    if (clientSocket < 0) 
+                    {
+                        cerr << "ERR accept" << endl;
+                        ok = false;
+                    }
+                    //  start thread with client socket
+                    else
+                    {
+                        startThread(clientSocket);
+                        clients = true;
+                    }
+                }
+            } while (clients);
+
+            //  other tasks
+            otherTasks();
+        }
     }
     //  only reached in case of error: clean up
     if (listenSocket >= 0)

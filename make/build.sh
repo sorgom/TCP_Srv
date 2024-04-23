@@ -22,7 +22,7 @@ getcfgs()
 
 help()
 {
-    echo "Usage: $(basename $0) options [port] [locale]"
+    echo "Usage: $(basename $0) [options] [port] [locale]"
     echo "options:"
     echo "-c  clean ignored artifacts before"
     echo "-r  <config> run binary with [port] [locale]"
@@ -106,4 +106,4 @@ fi
 echo ""
 echo "starting $bin $*"
 echo ""
-$bin $*
+exec $bin $*
