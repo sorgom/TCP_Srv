@@ -8,6 +8,6 @@ int main(const INT32 argc, const CONST_C_STRING* const argv)
 {
     TCP_Srv_Echo srv;
     srv.run(argc, argv);
-    //  only reached in case of failure
-    return 1;
+    //  reached in case of test mode
+    return 0;
 }

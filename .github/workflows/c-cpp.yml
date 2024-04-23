@@ -21,4 +21,4 @@ jobs:
         -   name: prepare build
             run: chmod 755 make/build.sh
         -   name: build
-            run: make/build.sh -c
+            run: make/build.sh -cr prod test

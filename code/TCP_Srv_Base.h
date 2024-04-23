@@ -77,16 +77,18 @@ protected:
 private:
     //  default port
     constexpr static UINT16 defPort = 8080;
-    //  client thread method
-    void handleClient(SOCKET clientSocket, UINT32 nr);
     //  thread count
     UINT32 mCnt = 0;
     //  thread number
     UINT32 mNum = 0;
     //  mutex for thread count and number
     std::mutex mMtxStat;
+    //  just bind test
+    bool mTest = false;
     //  start thread with increased thread number and count
     void startThread(SOCKET clientSocket);
+    //  client thread method
+    void handleClient(SOCKET clientSocket, UINT32 nr);
     //  decrease thread count, reset thread number when count is 0    
     void endOfThread();
     //  display current number of threads
